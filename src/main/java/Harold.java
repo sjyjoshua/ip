@@ -28,18 +28,56 @@ public class Harold {
         System.out.println(separator);
 
         Scanner scanner = new Scanner(System.in);
+        String[] inputs = new String[100];
+        int i = 0;
         while (true) {
             String command = scanner.nextLine();
             System.out.println(separator);
 
-            if (command.equals("bye") || command.equals("BYE") || command.equals("Bye")) {
+            if (isByeCommand(command)) {
                 System.out.println("Goodbye! Please take me down soon hehe!");
                 System.out.println(separator);
                 break;
+            } else if (command.equals("list")) {
+                for (int k = 0; k < i; k++) {
+                    System.out.printf("%d. %s%n", k + 1, inputs[k]);
+                }
+            } else {
+                inputs[i++] = command;
+                System.out.println("added: " + inputs[i - 1]);
             }
 
-            System.out.println(command);
             System.out.println(separator);
         }
+    }
+
+    /**
+     * Returns true when the command contains only the letters in "bye",
+     * regardless of their order, capitalization, or number of repetitions.
+     * Each of the three letters must occur at least once.
+     */
+    private static boolean isByeCommand(String command) {
+        boolean hasB = false;
+        boolean hasY = false;
+        boolean hasE = false;
+
+        for (int i = 0; i < command.length(); i++) {
+            char character = Character.toLowerCase(command.charAt(i));
+            switch (character) {
+            case 'b':
+                hasB = true;
+                break;
+            case 'y':
+                hasY = true;
+                break;
+            case 'e':
+                hasE = true;
+                break;
+            default:
+                return false;
+            }
+        }
+
+        return hasB && hasY && hasE;
     }
 }
