@@ -1,4 +1,4 @@
-# Duke User Guide
+# Harold User Guide
 
 // Update the title above to match the actual product name
 
