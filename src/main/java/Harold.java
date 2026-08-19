@@ -29,6 +29,7 @@ public class Harold {
 
         Scanner scanner = new Scanner(System.in);
         String[] inputs = new String[100];
+        boolean[] done = new boolean[100];
         int i = 0;
         while (true) {
             String command = scanner.nextLine();
@@ -39,8 +40,40 @@ public class Harold {
                 System.out.println(separator);
                 break;
             } else if (command.equals("list")) {
+                System.out.println("Here are the tasks in your list:");
                 for (int k = 0; k < i; k++) {
-                    System.out.printf("%d. %s%n", k + 1, inputs[k]);
+                    String status = done[k] ? "X" : " ";
+                    System.out.printf("%d.[%s] %s%n", k + 1, status, inputs[k]);
+                }
+            } else if (command.equals("mark")) {
+                System.out.println("Please enter a valid task number after mark.");
+            } else if (command.startsWith("mark ")) {
+                try {
+                    int index = Integer.parseInt(command.substring(5)) - 1;
+                    if (index < 0 || index >= i) {
+                        System.out.println("That task number does not exist.");
+                    } else {
+                        done[index] = true;
+                        System.out.println("Nice! I've marked this task as done:");
+                        System.out.printf("  [X] %s%n", inputs[index]);
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println("Please enter a valid task number after mark.");
+                }
+            } else if (command.equals("unmark")) {
+                System.out.println("Please enter a valid task number after unmark.");
+            } else if (command.startsWith("unmark ")) {
+                try {
+                    int index = Integer.parseInt(command.substring(7)) - 1;
+                    if (index < 0 || index >= i) {
+                        System.out.println("That task number does not exist.");
+                    } else {
+                        done[index] = false;
+                        System.out.println("OK, I've marked this task as not done yet:");
+                        System.out.printf("  [ ] %s%n", inputs[index]);
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println("Please enter a valid task number after unmark.");
                 }
             } else {
                 inputs[i++] = command;
