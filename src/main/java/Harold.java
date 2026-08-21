@@ -28,9 +28,8 @@ public class Harold {
         System.out.println(separator);
 
         Scanner scanner = new Scanner(System.in);
-        String[] inputs = new String[100];
-        boolean[] done = new boolean[100];
-        int i = 0;
+        Task[] tasks = new Task[100];
+        int taskCount = 0;
         while (true) {
             String command = scanner.nextLine();
             System.out.println(separator);
@@ -41,21 +40,20 @@ public class Harold {
                 break;
             } else if (command.equals("list")) {
                 System.out.println("Here are the tasks in your list:");
-                for (int k = 0; k < i; k++) {
-                    String status = done[k] ? "X" : " ";
-                    System.out.printf("%d.[%s] %s%n", k + 1, status, inputs[k]);
+                for (int k = 0; k < taskCount; k++) {
+                    System.out.printf("%d.%s%n", k + 1, tasks[k]);
                 }
             } else if (command.equals("mark")) {
                 System.out.println("Please enter a valid task number after mark.");
             } else if (command.startsWith("mark ")) {
                 try {
                     int index = Integer.parseInt(command.substring(5)) - 1;
-                    if (index < 0 || index >= i) {
+                    if (index < 0 || index >= taskCount) {
                         System.out.println("That task number does not exist.");
                     } else {
-                        done[index] = true;
+                        tasks[index].markAsDone();
                         System.out.println("Nice! I've marked this task as done:");
-                        System.out.printf("  [X] %s%n", inputs[index]);
+                        System.out.printf("  %s%n", tasks[index]);
                     }
                 } catch (NumberFormatException e) {
                     System.out.println("Please enter a valid task number after mark.");
@@ -65,23 +63,78 @@ public class Harold {
             } else if (command.startsWith("unmark ")) {
                 try {
                     int index = Integer.parseInt(command.substring(7)) - 1;
-                    if (index < 0 || index >= i) {
+                    if (index < 0 || index >= taskCount) {
                         System.out.println("That task number does not exist.");
                     } else {
-                        done[index] = false;
+                        tasks[index].markAsNotDone();
                         System.out.println("OK, I've marked this task as not done yet:");
-                        System.out.printf("  [ ] %s%n", inputs[index]);
+                        System.out.printf("  %s%n", tasks[index]);
                     }
                 } catch (NumberFormatException e) {
                     System.out.println("Please enter a valid task number after unmark.");
                 }
+            } else if (command.equals("todo")) {
+                System.out.println("Please enter a description after todo.");
+            } else if (command.startsWith("todo ")) {
+                String description = command.substring(5).trim();
+                if (description.isEmpty()) {
+                    System.out.println("Please enter a description after todo.");
+                } else if (taskCount >= tasks.length) {
+                    System.out.println("Your task list is full.");
+                } else {
+                    tasks[taskCount++] = new Todo(description);
+                    printTaskAdded(tasks[taskCount - 1], taskCount);
+                }
+            } else if (command.equals("deadline")) {
+                System.out.println("Use: deadline <description> /by <date or time>");
+            } else if (command.startsWith("deadline ")) {
+                int byIndex = command.indexOf(" /by ", 9);
+                if (byIndex < 0 || command.substring(9, byIndex).trim().isEmpty()
+                        || command.substring(byIndex + 5).trim().isEmpty()) {
+                    System.out.println("Use: deadline <description> /by <date or time>");
+                } else if (taskCount >= tasks.length) {
+                    System.out.println("Your task list is full.");
+                } else {
+                    String description = command.substring(9, byIndex).trim();
+                    String by = command.substring(byIndex + 5).trim();
+                    tasks[taskCount++] = new Deadline(description, by);
+                    printTaskAdded(tasks[taskCount - 1], taskCount);
+                }
+            } else if (command.equals("event")) {
+                System.out.println("Use: event <description> /from <start> /to <end>");
+            } else if (command.startsWith("event ")) {
+                int fromIndex = command.indexOf(" /from ", 6);
+                int toIndex = fromIndex < 0 ? -1 : command.indexOf(" /to ", fromIndex + 7);
+                if (fromIndex < 0 || toIndex < 0
+                        || command.substring(6, fromIndex).trim().isEmpty()
+                        || command.substring(fromIndex + 7, toIndex).trim().isEmpty()
+                        || command.substring(toIndex + 5).trim().isEmpty()) {
+                    System.out.println("Use: event <description> /from <start> /to <end>");
+                } else if (taskCount >= tasks.length) {
+                    System.out.println("Your task list is full.");
+                } else {
+                    String description = command.substring(6, fromIndex).trim();
+                    String from = command.substring(fromIndex + 7, toIndex).trim();
+                    String to = command.substring(toIndex + 5).trim();
+                    tasks[taskCount++] = new Event(description, from, to);
+                    printTaskAdded(tasks[taskCount - 1], taskCount);
+                }
             } else {
-                inputs[i++] = command;
-                System.out.println("added: " + inputs[i - 1]);
+                System.out.println("I don't understand that command.");
             }
 
             System.out.println(separator);
         }
+    }
+
+    /**
+     * Prints confirmation that a task was added and reports the new task count.
+     */
+    private static void printTaskAdded(Task task, int taskCount) {
+        System.out.println("Got it. I've added this task:");
+        System.out.printf("  %s%n", task);
+        String taskWord = taskCount == 1 ? "task" : "tasks";
+        System.out.printf("Now you have %d %s in the list.%n", taskCount, taskWord);
     }
 
     /**
