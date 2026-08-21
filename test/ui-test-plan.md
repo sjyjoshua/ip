@@ -239,10 +239,105 @@ OOPS!!! Task 0 does not exist. Choose a number from 1 to 1.
 #### Output 16
 
 ```text
-OOPS!!! I don't know what 'blah' means. Try todo, deadline, event, list, mark, unmark, or bye.
+OOPS!!! I don't know what 'blah' means. Try todo, deadline, event, list, mark, unmark, delete, or bye.
 ```
 
 #### Output 17
+
+```text
+Goodbye! Please take me down soon hehe!
+```
+
+## TC04: Delete tasks and close array gaps
+
+**Aim:** Verify that deleting middle, first, and last tasks preserves list order and that deleting from an empty list is handled safely.
+
+### Inputs
+
+```text
+todo first task
+todo middle task
+todo last task
+delete 2
+list
+delete 1
+delete 1
+list
+delete 1
+bye
+```
+
+### Expected outputs
+
+#### Output 1
+
+```text
+Got it. I've added this task:
+  [T][ ] first task
+Now you have 1 task in the list.
+```
+
+#### Output 2
+
+```text
+Got it. I've added this task:
+  [T][ ] middle task
+Now you have 2 tasks in the list.
+```
+
+#### Output 3
+
+```text
+Got it. I've added this task:
+  [T][ ] last task
+Now you have 3 tasks in the list.
+```
+
+#### Output 4
+
+```text
+DELETED. I've removed this task:
+  [T][ ] middle task
+Now you have 2 tasks in the list.
+```
+
+#### Output 5
+
+```text
+Here are the tasks in your list:
+1.[T][ ] first task
+2.[T][ ] last task
+```
+
+#### Output 6
+
+```text
+DELETED. I've removed this task:
+  [T][ ] first task
+Now you have 1 task in the list.
+```
+
+#### Output 7
+
+```text
+DELETED. I've removed this task:
+  [T][ ] last task
+Now you have 0 tasks in the list.
+```
+
+#### Output 8
+
+```text
+Here are the tasks in your list:
+```
+
+#### Output 9
+
+```text
+OOPS!!! Your task list is empty, so there is nothing to delete.
+```
+
+#### Output 10
 
 ```text
 Goodbye! Please take me down soon hehe!

@@ -37,32 +37,62 @@ public class Harold {
             try {
                 if (command.isBlank()) {
                     throw new HaroldException("Please enter a command pls.");
-                } else if (isByeCommand(command)) {
+                }
+
+                CommandType commandType = getCommandType(command);
+                switch (commandType) {
+                case BYE -> {
                     System.out.println("Goodbye! Please take me down soon hehe!");
                     System.out.println(separator);
-                    break;
-                } else if (command.equals("list")) {
+                    return;
+                }
+                case LIST -> {
+                    if (!command.equals("list")) {
+                        throw new HaroldException("The list command does not accept extra text.");
+                    }
                     System.out.println("Here are the tasks in your list:");
                     for (int k = 0; k < taskCount; k++) {
                         System.out.printf("%d.%s%n", k + 1, tasks[k]);
                     }
-                } else if (command.equals("mark") || command.startsWith("mark ")) {
+                }
+                case MARK -> {
                     int index = parseTaskIndex(command, "mark", taskCount);
                     tasks[index].markAsDone();
                     System.out.println("Nice! I've marked this task as done:");
                     System.out.printf("  %s%n", tasks[index]);
-                } else if (command.equals("unmark") || command.startsWith("unmark ")) {
+                }
+                case UNMARK -> {
                     int index = parseTaskIndex(command, "unmark", taskCount);
                     tasks[index].markAsNotDone();
                     System.out.println("OK, I've marked this task as not done yet:");
                     System.out.printf("  %s%n", tasks[index]);
-                } else if (command.equals("todo") || command.startsWith("todo ")) {
+                }
+                case DELETE -> {
+                    int index = parseTaskIndex(command, "delete", taskCount);
+                    Task removedTask = tasks[index];
+                    for (int k = index; k < taskCount - 1; k++) {
+                        tasks[k] = tasks[k + 1];
+                    }
+                    tasks[taskCount - 1] = null;
+                    taskCount--;
+                    System.out.println("DELETED. I've removed this task:");
+                    System.out.printf("  %s%n", removedTask);
+
+                    String taskWord = taskCount == 1 ? "task" : "tasks";
+                    System.out.printf(
+                            "Now you have %d %s in the list.%n",
+                            taskCount,
+                            taskWord
+                    );
+                }
+                case TODO -> {
                     String description = command.length() > 4 ? command.substring(5).trim() : "";
                     requireDescription(description, "todo");
                     requireSpaceInTaskList(taskCount, tasks.length);
                     tasks[taskCount++] = new Todo(description);
                     printTaskAdded(tasks[taskCount - 1], taskCount);
-                } else if (command.equals("deadline") || command.startsWith("deadline ")) {
+                }
+                case DEADLINE -> {
                     int byIndex = command.indexOf(" /by");
                     if (byIndex < 0 || byIndex + 4 < command.length()
                             && !Character.isWhitespace(command.charAt(byIndex + 4))) {
@@ -79,7 +109,8 @@ public class Harold {
                     requireSpaceInTaskList(taskCount, tasks.length);
                     tasks[taskCount++] = new Deadline(description, by);
                     printTaskAdded(tasks[taskCount - 1], taskCount);
-                } else if (command.equals("event") || command.startsWith("event ")) {
+                }
+                case EVENT -> {
                     int fromIndex = command.indexOf(" /from");
                     if (fromIndex < 0 || fromIndex + 6 < command.length()
                             && !Character.isWhitespace(command.charAt(fromIndex + 6))) {
@@ -106,27 +137,11 @@ public class Harold {
                     requireSpaceInTaskList(taskCount, tasks.length);
                     tasks[taskCount++] = new Event(description, from, to);
                     printTaskAdded(tasks[taskCount - 1], taskCount);
-                } else if (command.equals("delete") || command.startsWith("delete ")) {
-                    int index = parseTaskIndex(command, "delete", taskCount);
-                    Task removedTask = tasks[index];
-                    for (int k = index; k < taskCount - 1; k++) {
-                        tasks[k] = tasks[k + 1];
-                    }
-                    tasks[taskCount - 1] = null;
-                    taskCount--;
-                    System.out.println("DELETED. I've removed this task:");
-                    System.out.printf("  %s%n", removedTask);
-
-                    String taskWord = taskCount == 1 ? "task" : "tasks";
-                    System.out.printf(
-                            "Now you have %d %s in the list.%n",
-                            taskCount,
-                            taskWord
-                    );
-                } else {
+                }
+                case UNKNOWN ->
                     throw new HaroldException(
                             "I don't know what '" + command + "' means. "
-                                    + "Try todo, deadline, event, list, mark, unmark, or bye.");
+                                    + "Try todo, deadline, event, list, mark, unmark, delete, or bye.");
                 }
             } catch (HaroldException e) {
                 System.out.println("OOPS!!! " + e.getMessage());
@@ -137,7 +152,14 @@ public class Harold {
     }
 
     /**
-     * Parses and validates the one-based task number supplied to mark or unmark.
+     * Returns the type of command entered by the user.
+     */
+    private static CommandType getCommandType(String command) {
+        return isByeCommand(command) ? CommandType.BYE : CommandType.fromCommand(command);
+    }
+
+    /**
+     * Parses and validates the one-based task number supplied to a task command.
      */
     private static int parseTaskIndex(String command, String commandWord, int taskCount)
             throws HaroldException {
