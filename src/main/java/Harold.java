@@ -30,100 +30,162 @@ public class Harold {
         Scanner scanner = new Scanner(System.in);
         Task[] tasks = new Task[100];
         int taskCount = 0;
-        while (true) {
+        while (scanner.hasNextLine()) {
             String command = scanner.nextLine();
             System.out.println(separator);
 
-            if (isByeCommand(command)) {
-                System.out.println("Goodbye! Please take me down soon hehe!");
-                System.out.println(separator);
-                break;
-            } else if (command.equals("list")) {
-                System.out.println("Here are the tasks in your list:");
-                for (int k = 0; k < taskCount; k++) {
-                    System.out.printf("%d.%s%n", k + 1, tasks[k]);
-                }
-            } else if (command.equals("mark")) {
-                System.out.println("Please enter a valid task number after mark.");
-            } else if (command.startsWith("mark ")) {
-                try {
-                    int index = Integer.parseInt(command.substring(5)) - 1;
-                    if (index < 0 || index >= taskCount) {
-                        System.out.println("That task number does not exist.");
-                    } else {
-                        tasks[index].markAsDone();
-                        System.out.println("Nice! I've marked this task as done:");
-                        System.out.printf("  %s%n", tasks[index]);
+            try {
+                if (command.isBlank()) {
+                    throw new HaroldException("Please enter a command pls.");
+                } else if (isByeCommand(command)) {
+                    System.out.println("Goodbye! Please take me down soon hehe!");
+                    System.out.println(separator);
+                    break;
+                } else if (command.equals("list")) {
+                    System.out.println("Here are the tasks in your list:");
+                    for (int k = 0; k < taskCount; k++) {
+                        System.out.printf("%d.%s%n", k + 1, tasks[k]);
                     }
-                } catch (NumberFormatException e) {
-                    System.out.println("Please enter a valid task number after mark.");
-                }
-            } else if (command.equals("unmark")) {
-                System.out.println("Please enter a valid task number after unmark.");
-            } else if (command.startsWith("unmark ")) {
-                try {
-                    int index = Integer.parseInt(command.substring(7)) - 1;
-                    if (index < 0 || index >= taskCount) {
-                        System.out.println("That task number does not exist.");
-                    } else {
-                        tasks[index].markAsNotDone();
-                        System.out.println("OK, I've marked this task as not done yet:");
-                        System.out.printf("  %s%n", tasks[index]);
-                    }
-                } catch (NumberFormatException e) {
-                    System.out.println("Please enter a valid task number after unmark.");
-                }
-            } else if (command.equals("todo")) {
-                System.out.println("Please enter a description after todo.");
-            } else if (command.startsWith("todo ")) {
-                String description = command.substring(5).trim();
-                if (description.isEmpty()) {
-                    System.out.println("Please enter a description after todo.");
-                } else if (taskCount >= tasks.length) {
-                    System.out.println("Your task list is full.");
-                } else {
+                } else if (command.equals("mark") || command.startsWith("mark ")) {
+                    int index = parseTaskIndex(command, "mark", taskCount);
+                    tasks[index].markAsDone();
+                    System.out.println("Nice! I've marked this task as done:");
+                    System.out.printf("  %s%n", tasks[index]);
+                } else if (command.equals("unmark") || command.startsWith("unmark ")) {
+                    int index = parseTaskIndex(command, "unmark", taskCount);
+                    tasks[index].markAsNotDone();
+                    System.out.println("OK, I've marked this task as not done yet:");
+                    System.out.printf("  %s%n", tasks[index]);
+                } else if (command.equals("todo") || command.startsWith("todo ")) {
+                    String description = command.length() > 4 ? command.substring(5).trim() : "";
+                    requireDescription(description, "todo");
+                    requireSpaceInTaskList(taskCount, tasks.length);
                     tasks[taskCount++] = new Todo(description);
                     printTaskAdded(tasks[taskCount - 1], taskCount);
-                }
-            } else if (command.equals("deadline")) {
-                System.out.println("Use: deadline <description> /by <date or time>");
-            } else if (command.startsWith("deadline ")) {
-                int byIndex = command.indexOf(" /by ", 9);
-                if (byIndex < 0 || command.substring(9, byIndex).trim().isEmpty()
-                        || command.substring(byIndex + 5).trim().isEmpty()) {
-                    System.out.println("Use: deadline <description> /by <date or time>");
-                } else if (taskCount >= tasks.length) {
-                    System.out.println("Your task list is full.");
-                } else {
-                    String description = command.substring(9, byIndex).trim();
-                    String by = command.substring(byIndex + 5).trim();
+                } else if (command.equals("deadline") || command.startsWith("deadline ")) {
+                    int byIndex = command.indexOf(" /by");
+                    if (byIndex < 0 || byIndex + 4 < command.length()
+                            && !Character.isWhitespace(command.charAt(byIndex + 4))) {
+                        throw new HaroldException(
+                                "A deadline needs '/by <date or time>'. "
+                                        + "Try: deadline <description> /by <date or time>");
+                    }
+                    String description = byIndex < 9 ? "" : command.substring(9, byIndex).trim();
+                    String by = command.substring(byIndex + 4).trim();
+                    requireDescription(description, "deadline");
+                    if (by.isEmpty()) {
+                        throw new HaroldException("Please enter a date or time after /by.");
+                    }
+                    requireSpaceInTaskList(taskCount, tasks.length);
                     tasks[taskCount++] = new Deadline(description, by);
                     printTaskAdded(tasks[taskCount - 1], taskCount);
-                }
-            } else if (command.equals("event")) {
-                System.out.println("Use: event <description> /from <start> /to <end>");
-            } else if (command.startsWith("event ")) {
-                int fromIndex = command.indexOf(" /from ", 6);
-                int toIndex = fromIndex < 0 ? -1 : command.indexOf(" /to ", fromIndex + 7);
-                if (fromIndex < 0 || toIndex < 0
-                        || command.substring(6, fromIndex).trim().isEmpty()
-                        || command.substring(fromIndex + 7, toIndex).trim().isEmpty()
-                        || command.substring(toIndex + 5).trim().isEmpty()) {
-                    System.out.println("Use: event <description> /from <start> /to <end>");
-                } else if (taskCount >= tasks.length) {
-                    System.out.println("Your task list is full.");
-                } else {
-                    String description = command.substring(6, fromIndex).trim();
-                    String from = command.substring(fromIndex + 7, toIndex).trim();
-                    String to = command.substring(toIndex + 5).trim();
+                } else if (command.equals("event") || command.startsWith("event ")) {
+                    int fromIndex = command.indexOf(" /from");
+                    if (fromIndex < 0 || fromIndex + 6 < command.length()
+                            && !Character.isWhitespace(command.charAt(fromIndex + 6))) {
+                        throw new HaroldException(
+                                "An event needs '/from <start>'. "
+                                        + "Try: event <description> /from <start> /to <end>");
+                    }
+                    int toIndex = command.indexOf(" /to", fromIndex + 6);
+                    if (toIndex < 0 || toIndex + 4 < command.length()
+                            && !Character.isWhitespace(command.charAt(toIndex + 4))) {
+                        throw new HaroldException(
+                                "An event needs '/to <end>'. "
+                                        + "Try: event <description> /from <start> /to <end>");
+                    }
+                    String description = fromIndex < 6 ? "" : command.substring(6, fromIndex).trim();
+                    String from = command.substring(fromIndex + 6, toIndex).trim();
+                    String to = command.substring(toIndex + 4).trim();
+                    requireDescription(description, "event");
+                    if (from.isEmpty()) {
+                        throw new HaroldException("Please enter a start date or time after /from.");
+                    } else if (to.isEmpty()) {
+                        throw new HaroldException("Please enter an end date or time after /to.");
+                    }
+                    requireSpaceInTaskList(taskCount, tasks.length);
                     tasks[taskCount++] = new Event(description, from, to);
                     printTaskAdded(tasks[taskCount - 1], taskCount);
+                } else if (command.equals("delete") || command.startsWith("delete ")) {
+                    int index = parseTaskIndex(command, "delete", taskCount);
+                    Task removedTask = tasks[index];
+                    for (int k = index; k < taskCount - 1; k++) {
+                        tasks[k] = tasks[k + 1];
+                    }
+                    tasks[taskCount - 1] = null;
+                    taskCount--;
+                    System.out.println("DELETED. I've removed this task:");
+                    System.out.printf("  %s%n", removedTask);
+
+                    String taskWord = taskCount == 1 ? "task" : "tasks";
+                    System.out.printf(
+                            "Now you have %d %s in the list.%n",
+                            taskCount,
+                            taskWord
+                    );
+                } else {
+                    throw new HaroldException(
+                            "I don't know what '" + command + "' means. "
+                                    + "Try todo, deadline, event, list, mark, unmark, or bye.");
                 }
-            } else {
-                System.out.println("I don't understand that command.");
+            } catch (HaroldException e) {
+                System.out.println("OOPS!!! " + e.getMessage());
             }
 
             System.out.println(separator);
+        }
+    }
+
+    /**
+     * Parses and validates the one-based task number supplied to mark or unmark.
+     */
+    private static int parseTaskIndex(String command, String commandWord, int taskCount)
+            throws HaroldException {
+        String numberText = command.substring(commandWord.length()).trim();
+        if (numberText.isEmpty()) {
+            throw new HaroldException("Please enter a task number after " + commandWord + ".");
+        }
+        if (taskCount == 0) {
+            throw new HaroldException("Your task list is empty, so there is nothing to "
+                    + commandWord + ".");
+        }
+
+        int taskNumber;
+        try {
+            taskNumber = Integer.parseInt(numberText);
+        } catch (NumberFormatException e) {
+            throw new HaroldException(
+                    "'" + numberText + "' is not a valid task number. "
+                            + "Try: " + commandWord + " <task number>");
+        }
+        if (taskNumber < 1 || taskNumber > taskCount) {
+            throw new HaroldException(
+                    "Task " + taskNumber + " does not exist. "
+                            + "Choose a number from 1 to " + taskCount + ".");
+        }
+        return taskNumber - 1;
+    }
+
+    /**
+     * Ensures that a task command contains a description.
+     */
+    private static void requireDescription(String description, String taskType)
+            throws HaroldException {
+        if (description.isEmpty()) {
+            String article = taskType.equals("event") ? "an" : "a";
+            throw new HaroldException(
+                    "The description of " + article + " " + taskType + " cannot be empty. "
+                            + "Try: " + taskType + " <description>");
+        }
+    }
+
+    /**
+     * Ensures that another task can be stored in the fixed-size task array.
+     */
+    private static void requireSpaceInTaskList(int taskCount, int capacity)
+            throws HaroldException {
+        if (taskCount >= capacity) {
+            throw new HaroldException("Your task list is full. Complete some tasks before adding more.");
         }
     }
 
