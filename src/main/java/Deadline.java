@@ -1,18 +1,20 @@
+import java.time.LocalDate;
+
 /**
- * Represents a task that must be completed by a specified date or time.
+ * Represents a task that must be completed by a specified date.
  */
 public class Deadline extends Task {
-    private final String by;
+    private final LocalDate by;
 
-    public Deadline(String description, String by) {
+    public Deadline(String description, LocalDate by) {
         super(description);
         this.by = by;
     }
 
     /**
-     * Returns the deadline text.
+     * Returns the deadline date.
      */
-    public String getBy() {
+    public LocalDate getBy() {
         return by;
     }
 
@@ -23,6 +25,6 @@ public class Deadline extends Task {
 
     @Override
     public String toString() {
-        return String.format("%s (by: %s)", super.toString(), by);
+        return String.format("%s (by: %s)", super.toString(), TaskDate.format(by));
     }
 }

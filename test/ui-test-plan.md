@@ -10,8 +10,8 @@ This file is the source of truth for command-line UI regression tests run by the
 
 ```text
 todo borrow book
-deadline return book /by Sunday
-event project meeting /from Mon 2pm /to 4pm
+deadline return book /by 2026-08-30
+event project meeting /from 2026-09-01 /to 2026-09-02
 mark 1
 list
 bye
@@ -31,7 +31,7 @@ Now you have 1 task in the list.
 
 ```text
 Got it. I've added this task:
-  [D][ ] return book (by: Sunday)
+  [D][ ] return book (by: Aug 30 2026)
 Now you have 2 tasks in the list.
 ```
 
@@ -39,7 +39,7 @@ Now you have 2 tasks in the list.
 
 ```text
 Got it. I've added this task:
-  [E][ ] project meeting (from: Mon 2pm to: 4pm)
+  [E][ ] project meeting (from: Sep 1 2026 to: Sep 2 2026)
 Now you have 3 tasks in the list.
 ```
 
@@ -55,8 +55,8 @@ Nice! I've marked this task as done:
 ```text
 Here are the tasks in your list:
 1.[T][X] borrow book
-2.[D][ ] return book (by: Sunday)
-3.[E][ ] project meeting (from: Mon 2pm to: 4pm)
+2.[D][ ] return book (by: Aug 30 2026)
+3.[E][ ] project meeting (from: Sep 1 2026 to: Sep 2 2026)
 ```
 
 #### Output 6
@@ -65,14 +65,14 @@ Here are the tasks in your list:
 Goodbye! Please take me down soon hehe!
 ```
 
-## TC02: Accept arbitrary deadline text and unmark a task
+## TC02: Format a deadline date and unmark a task
 
-**Aim:** Verify that deadline timing is stored as text and a completed task can be marked incomplete again.
+**Aim:** Verify that an ISO deadline date is displayed clearly and a completed task can be marked incomplete again.
 
 ### Inputs
 
 ```text
-deadline do homework /by no idea :-p
+deadline do homework /by 2026-10-05
 mark 1
 unmark 1
 list
@@ -85,7 +85,7 @@ bye
 
 ```text
 Got it. I've added this task:
-  [D][ ] do homework (by: no idea :-p)
+  [D][ ] do homework (by: Oct 5 2026)
 Now you have 1 task in the list.
 ```
 
@@ -93,21 +93,21 @@ Now you have 1 task in the list.
 
 ```text
 Nice! I've marked this task as done:
-  [D][X] do homework (by: no idea :-p)
+  [D][X] do homework (by: Oct 5 2026)
 ```
 
 #### Output 3
 
 ```text
 OK, I've marked this task as not done yet:
-  [D][ ] do homework (by: no idea :-p)
+  [D][ ] do homework (by: Oct 5 2026)
 ```
 
 #### Output 4
 
 ```text
 Here are the tasks in your list:
-1.[D][ ] do homework (by: no idea :-p)
+1.[D][ ] do homework (by: Oct 5 2026)
 ```
 
 #### Output 5
@@ -165,7 +165,7 @@ OOPS!!! The description of a deadline cannot be empty. Try: deadline <descriptio
 #### Output 4
 
 ```text
-OOPS!!! Please enter a date or time after /by.
+OOPS!!! Please enter a date after /by.
 ```
 
 #### Output 5
@@ -189,13 +189,13 @@ OOPS!!! The description of an event cannot be empty. Try: event <description>
 #### Output 8
 
 ```text
-OOPS!!! Please enter a start date or time after /from.
+OOPS!!! Please enter a start date after /from.
 ```
 
 #### Output 9
 
 ```text
-OOPS!!! Please enter an end date or time after /to.
+OOPS!!! Please enter an end date after /to.
 ```
 
 #### Output 10
@@ -338,6 +338,70 @@ OOPS!!! Your task list is empty, so there is nothing to delete.
 ```
 
 #### Output 10
+
+```text
+Goodbye! Please take me down soon hehe!
+```
+
+## TC05: Parse and validate task dates
+
+**Aim:** Verify that valid ISO dates are reformatted and invalid calendar dates are rejected clearly.
+
+### Inputs
+
+```text
+deadline leap-day task /by 2024-02-29
+deadline impossible date /by 2023-02-29
+deadline wrong format /by 29-02-2024
+event holiday /from 2026-12-24 /to 2026-12-26
+event bad start /from tomorrow /to 2026-12-26
+event bad end /from 2026-12-24 /to next-week
+bye
+```
+
+### Expected outputs
+
+#### Output 1
+
+```text
+Got it. I've added this task:
+  [D][ ] leap-day task (by: Feb 29 2024)
+Now you have 1 task in the list.
+```
+
+#### Output 2
+
+```text
+OOPS!!! Please enter the date after /by as yyyy-MM-dd, for example 2019-10-15.
+```
+
+#### Output 3
+
+```text
+OOPS!!! Please enter the date after /by as yyyy-MM-dd, for example 2019-10-15.
+```
+
+#### Output 4
+
+```text
+Got it. I've added this task:
+  [E][ ] holiday (from: Dec 24 2026 to: Dec 26 2026)
+Now you have 2 tasks in the list.
+```
+
+#### Output 5
+
+```text
+OOPS!!! Please enter the date after /from as yyyy-MM-dd, for example 2019-10-15.
+```
+
+#### Output 6
+
+```text
+OOPS!!! Please enter the date after /to as yyyy-MM-dd, for example 2019-10-15.
+```
+
+#### Output 7
 
 ```text
 Goodbye! Please take me down soon hehe!
