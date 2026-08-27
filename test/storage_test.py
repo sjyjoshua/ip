@@ -56,8 +56,8 @@ def main() -> None:
             working_directory,
             [
                 "todo read | save notes",
-                "deadline submit work /by Friday 6pm",
-                "event meeting /from Monday 2pm /to 4pm",
+                "deadline submit work /by 2026-08-28",
+                "event meeting /from 2026-08-31 /to 2026-09-01",
                 "mark 1",
                 "bye",
             ],
@@ -73,8 +73,11 @@ def main() -> None:
             ["list", "delete 2", "bye"],
         )
         require_text(loaded_output, "1.[T][X] read | save notes")
-        require_text(loaded_output, "2.[D][ ] submit work (by: Friday 6pm)")
-        require_text(loaded_output, "3.[E][ ] meeting (from: Monday 2pm to: 4pm)")
+        require_text(loaded_output, "2.[D][ ] submit work (by: Aug 28 2026)")
+        require_text(
+            loaded_output,
+            "3.[E][ ] meeting (from: Aug 31 2026 to: Sep 1 2026)",
+        )
 
         reloaded_output = run_harold(
             build_directory,
@@ -82,7 +85,10 @@ def main() -> None:
             ["list", "bye"],
         )
         require_text(reloaded_output, "1.[T][X] read | save notes")
-        require_text(reloaded_output, "2.[E][ ] meeting (from: Monday 2pm to: 4pm)")
+        require_text(
+            reloaded_output,
+            "2.[E][ ] meeting (from: Aug 31 2026 to: Sep 1 2026)",
+        )
         if "submit work" in reloaded_output:
             raise AssertionError("Deleted deadline reappeared after restarting Harold")
 
