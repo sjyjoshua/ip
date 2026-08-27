@@ -1,5 +1,7 @@
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Scanner;
 
@@ -130,11 +132,12 @@ public class Harold {
                                         + "Try: deadline <description> /by <date or time>");
                     }
                     String description = byIndex < 9 ? "" : command.substring(9, byIndex).trim();
-                    String by = command.substring(byIndex + 4).trim();
+                    String byText = command.substring(byIndex + 4).trim();
                     requireDescription(description, "deadline");
-                    if (by.isEmpty()) {
-                        throw new HaroldException("Please enter a date or time after /by.");
+                    if (byText.isEmpty()) {
+                        throw new HaroldException("Please enter a date after /by.");
                     }
+                    LocalDate by = parseDate(byText, "/by");
                     requireSpaceInTaskList(taskCount, tasks.length);
                     tasks[taskCount++] = new Deadline(description, by);
                     storage.save(tasks, taskCount);
@@ -156,14 +159,16 @@ public class Harold {
                                         + "Try: event <description> /from <start> /to <end>");
                     }
                     String description = fromIndex < 6 ? "" : command.substring(6, fromIndex).trim();
-                    String from = command.substring(fromIndex + 6, toIndex).trim();
-                    String to = command.substring(toIndex + 4).trim();
+                    String fromText = command.substring(fromIndex + 6, toIndex).trim();
+                    String toText = command.substring(toIndex + 4).trim();
                     requireDescription(description, "event");
-                    if (from.isEmpty()) {
-                        throw new HaroldException("Please enter a start date or time after /from.");
-                    } else if (to.isEmpty()) {
-                        throw new HaroldException("Please enter an end date or time after /to.");
+                    if (fromText.isEmpty()) {
+                        throw new HaroldException("Please enter a start date after /from.");
+                    } else if (toText.isEmpty()) {
+                        throw new HaroldException("Please enter an end date after /to.");
                     }
+                    LocalDate from = parseDate(fromText, "/from");
+                    LocalDate to = parseDate(toText, "/to");
                     requireSpaceInTaskList(taskCount, tasks.length);
                     tasks[taskCount++] = new Event(description, from, to);
                     storage.save(tasks, taskCount);
@@ -231,6 +236,21 @@ public class Harold {
             throw new HaroldException(
                     "The description of " + article + " " + taskType + " cannot be empty. "
                             + "Try: " + taskType + " <description>");
+        }
+    }
+
+    /**
+     * Parses a task date and reports the required input format when parsing fails.
+     */
+    private static LocalDate parseDate(String dateText, String commandMarker)
+            throws HaroldException {
+        try {
+            return TaskDate.parse(dateText);
+        } catch (DateTimeParseException e) {
+            throw new HaroldException(
+                    "Please enter the date after " + commandMarker
+                            + " as yyyy-MM-dd, for example 2019-10-15."
+            );
         }
     }
 

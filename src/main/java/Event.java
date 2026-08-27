@@ -1,27 +1,29 @@
+import java.time.LocalDate;
+
 /**
- * Represents a task with a specified start and end date or time.
+ * Represents a task with specified start and end dates.
  */
 public class Event extends Task {
-    private final String from;
-    private final String to;
+    private final LocalDate from;
+    private final LocalDate to;
 
-    public Event(String description, String from, String to) {
+    public Event(String description, LocalDate from, LocalDate to) {
         super(description);
         this.from = from;
         this.to = to;
     }
 
     /**
-     * Returns the event start text.
+     * Returns the event start date.
      */
-    public String getFrom() {
+    public LocalDate getFrom() {
         return from;
     }
 
     /**
-     * Returns the event end text.
+     * Returns the event end date.
      */
-    public String getTo() {
+    public LocalDate getTo() {
         return to;
     }
 
@@ -32,6 +34,11 @@ public class Event extends Task {
 
     @Override
     public String toString() {
-        return String.format("%s (from: %s to: %s)", super.toString(), from, to);
+        return String.format(
+                "%s (from: %s to: %s)",
+                super.toString(),
+                TaskDate.format(from),
+                TaskDate.format(to)
+        );
     }
 }

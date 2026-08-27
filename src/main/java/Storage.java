@@ -81,11 +81,15 @@ public class Storage {
         }
         case "D" -> {
             requireFieldCount(fields, 4);
-            yield new Deadline(description, decode(fields[3]));
+            yield new Deadline(description, TaskDate.parse(decode(fields[3])));
         }
         case "E" -> {
             requireFieldCount(fields, 5);
-            yield new Event(description, decode(fields[3]), decode(fields[4]));
+            yield new Event(
+                    description,
+                    TaskDate.parse(decode(fields[3])),
+                    TaskDate.parse(decode(fields[4]))
+            );
         }
         default -> throw new IllegalArgumentException("Unknown task type");
         };
@@ -105,10 +109,10 @@ public class Storage {
                 + FIELD_SEPARATOR + encode(task.getDescription());
 
         if (task instanceof Deadline deadline) {
-            return commonFields + FIELD_SEPARATOR + encode(deadline.getBy());
+            return commonFields + FIELD_SEPARATOR + encode(deadline.getBy().toString());
         } else if (task instanceof Event event) {
-            return commonFields + FIELD_SEPARATOR + encode(event.getFrom())
-                    + FIELD_SEPARATOR + encode(event.getTo());
+            return commonFields + FIELD_SEPARATOR + encode(event.getFrom().toString())
+                    + FIELD_SEPARATOR + encode(event.getTo().toString());
         }
         return commonFields;
     }
