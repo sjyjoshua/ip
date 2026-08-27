@@ -9,6 +9,13 @@ public class Deadline extends Task {
         this.by = by;
     }
 
+    /**
+     * Returns the deadline text.
+     */
+    public String getBy() {
+        return by;
+    }
+
     @Override
     protected String getTypeIcon() {
         return "D";

@@ -117,11 +117,13 @@ def main() -> int:
             print(compile_result.stderr, end="", file=sys.stderr)
             return 2
 
-        for case in cases:
+        for case_number, case in enumerate(cases, start=1):
+            case_directory = Path(build_directory) / f"case-{case_number}"
+            case_directory.mkdir()
             try:
                 result = subprocess.run(
                     ["java", "-cp", build_directory, "Harold"],
-                    cwd=PROJECT_ROOT,
+                    cwd=case_directory,
                     input="\n".join(case.commands) + "\n",
                     capture_output=True,
                     text=True,

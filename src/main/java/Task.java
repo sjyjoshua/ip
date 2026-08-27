@@ -21,6 +21,20 @@ public abstract class Task {
         isDone = false;
     }
 
+    /**
+     * Returns the task description.
+     */
+    public String getDescription() {
+        return description;
+    }
+
+    /**
+     * Returns whether the task is complete.
+     */
+    public boolean isDone() {
+        return isDone;
+    }
+
     protected abstract String getTypeIcon();
 
     @Override
