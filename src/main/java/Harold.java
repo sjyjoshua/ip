@@ -3,10 +3,10 @@ import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.List;
-import java.util.Scanner;
 
 public class Harold {
     public static void main(String[] args) {
+        Ui ui = new Ui();
         Storage storage = new Storage(Path.of("data", "harold.txt"));
         Task[] tasks = new Task[100];
         int taskCount = 0;
@@ -28,38 +28,11 @@ public class Harold {
             loadMessage = "I couldn't load your saved tasks, so I started with an empty list.";
         }
 
-        String separator = "____________________________________________________________";
-        String tag = " _   _                 _     _ \n"
-                + "| | | | __ _ _ __ ___ | | __| |\n"
-                + "| |_| |/ _` | '__/ _ \\| |/ _` |\n"
-                + "|  _  | (_| | | | (_) | | (_| |\n"
-                + "|_| |_|\\__,_|_|  \\___/|_|\\__,_|\n";
-        String banner = "           / \\__ /\\\n"
-                + "          /  _  _  \\\n"
-                + "         |  / \\/ \\  |\n"
-                + "         |  \\_/\\_/  |\n"
-                + "         |    __    |\n"
-                + "          \\  (__)  /\n"
-                + "           \\______/\n"
-                + "           /|    |\\\n"
-                + "          / |____| \\\n"
-                + "            / || \\\n"
-                + "           (_/  \\_)\\\n"
-                + tag;
+        ui.showWelcome(loadMessage);
 
-        System.out.println(separator);
-        System.out.print(banner);
-        System.out.println("Arf Arf, I mean WOOF WOOF! I'm Harold.");
-        System.out.println("What can I do for you, besides eat my poopoo?");
-        if (loadMessage != null) {
-            System.out.println("OOPS!!! " + loadMessage);
-        }
-        System.out.println(separator);
-
-        Scanner scanner = new Scanner(System.in);
-        while (scanner.hasNextLine()) {
-            String command = scanner.nextLine();
-            System.out.println(separator);
+        while (ui.hasNextCommand()) {
+            String command = ui.readCommand();
+            ui.showSeparator();
 
             try {
                 if (command.isBlank()) {
@@ -69,32 +42,26 @@ public class Harold {
                 CommandType commandType = getCommandType(command);
                 switch (commandType) {
                 case BYE -> {
-                    System.out.println("Goodbye! Please take me down soon hehe!");
-                    System.out.println(separator);
+                    ui.showGoodbye();
                     return;
                 }
                 case LIST -> {
                     if (!command.equals("list")) {
                         throw new HaroldException("The list command does not accept extra text.");
                     }
-                    System.out.println("Here are the tasks in your list:");
-                    for (int k = 0; k < taskCount; k++) {
-                        System.out.printf("%d.%s%n", k + 1, tasks[k]);
-                    }
+                    ui.showTaskList(tasks, taskCount);
                 }
                 case MARK -> {
                     int index = parseTaskIndex(command, "mark", taskCount);
                     tasks[index].markAsDone();
                     storage.save(tasks, taskCount);
-                    System.out.println("Nice! I've marked this task as done:");
-                    System.out.printf("  %s%n", tasks[index]);
+                    ui.showTaskMarked(tasks[index]);
                 }
                 case UNMARK -> {
                     int index = parseTaskIndex(command, "unmark", taskCount);
                     tasks[index].markAsNotDone();
                     storage.save(tasks, taskCount);
-                    System.out.println("OK, I've marked this task as not done yet:");
-                    System.out.printf("  %s%n", tasks[index]);
+                    ui.showTaskUnmarked(tasks[index]);
                 }
                 case DELETE -> {
                     int index = parseTaskIndex(command, "delete", taskCount);
@@ -105,15 +72,7 @@ public class Harold {
                     tasks[taskCount - 1] = null;
                     taskCount--;
                     storage.save(tasks, taskCount);
-                    System.out.println("DELETED. I've removed this task:");
-                    System.out.printf("  %s%n", removedTask);
-
-                    String taskWord = taskCount == 1 ? "task" : "tasks";
-                    System.out.printf(
-                            "Now you have %d %s in the list.%n",
-                            taskCount,
-                            taskWord
-                    );
+                    ui.showTaskDeleted(removedTask, taskCount);
                 }
                 case TODO -> {
                     String description = command.length() > 4 ? command.substring(5).trim() : "";
@@ -121,7 +80,7 @@ public class Harold {
                     requireSpaceInTaskList(taskCount, tasks.length);
                     tasks[taskCount++] = new Todo(description);
                     storage.save(tasks, taskCount);
-                    printTaskAdded(tasks[taskCount - 1], taskCount);
+                    ui.showTaskAdded(tasks[taskCount - 1], taskCount);
                 }
                 case DEADLINE -> {
                     int byIndex = command.indexOf(" /by");
@@ -141,7 +100,7 @@ public class Harold {
                     requireSpaceInTaskList(taskCount, tasks.length);
                     tasks[taskCount++] = new Deadline(description, by);
                     storage.save(tasks, taskCount);
-                    printTaskAdded(tasks[taskCount - 1], taskCount);
+                    ui.showTaskAdded(tasks[taskCount - 1], taskCount);
                 }
                 case EVENT -> {
                     int fromIndex = command.indexOf(" /from");
@@ -172,7 +131,7 @@ public class Harold {
                     requireSpaceInTaskList(taskCount, tasks.length);
                     tasks[taskCount++] = new Event(description, from, to);
                     storage.save(tasks, taskCount);
-                    printTaskAdded(tasks[taskCount - 1], taskCount);
+                    ui.showTaskAdded(tasks[taskCount - 1], taskCount);
                 }
                 case UNKNOWN ->
                     throw new HaroldException(
@@ -180,12 +139,12 @@ public class Harold {
                                     + "Try todo, deadline, event, list, mark, unmark, delete, or bye.");
                 }
             } catch (HaroldException e) {
-                System.out.println("OOPS!!! " + e.getMessage());
+                ui.showError(e.getMessage());
             } catch (IOException e) {
-                System.out.println("OOPS!!! I couldn't save your tasks. Please try again.");
+                ui.showError("I couldn't save your tasks. Please try again.");
             }
 
-            System.out.println(separator);
+            ui.showSeparator();
         }
     }
 
@@ -262,16 +221,6 @@ public class Harold {
         if (taskCount >= capacity) {
             throw new HaroldException("Your task list is full. Complete some tasks before adding more.");
         }
-    }
-
-    /**
-     * Prints confirmation that a task was added and reports the new task count.
-     */
-    private static void printTaskAdded(Task task, int taskCount) {
-        System.out.println("Got it. I've added this task:");
-        System.out.printf("  %s%n", task);
-        String taskWord = taskCount == 1 ? "task" : "tasks";
-        System.out.printf("Now you have %d %s in the list.%n", taskCount, taskWord);
     }
 
     /**
