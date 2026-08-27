@@ -1,7 +1,31 @@
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.List;
 import java.util.Scanner;
 
 public class Harold {
     public static void main(String[] args) {
+        Storage storage = new Storage(Path.of("data", "harold.txt"));
+        Task[] tasks = new Task[100];
+        int taskCount = 0;
+        String loadMessage = null;
+        try {
+            Storage.LoadResult loadResult = storage.load();
+            List<Task> loadedTasks = loadResult.tasks();
+            taskCount = Math.min(loadedTasks.size(), tasks.length);
+            for (int i = 0; i < taskCount; i++) {
+                tasks[i] = loadedTasks.get(i);
+            }
+            int skippedTaskCount = loadResult.skippedLineCount()
+                    + Math.max(0, loadedTasks.size() - tasks.length);
+            if (skippedTaskCount > 0) {
+                loadMessage = "I skipped " + skippedTaskCount
+                        + " invalid task record(s) while loading your data.";
+            }
+        } catch (IOException e) {
+            loadMessage = "I couldn't load your saved tasks, so I started with an empty list.";
+        }
+
         String separator = "____________________________________________________________";
         String tag = " _   _                 _     _ \n"
                 + "| | | | __ _ _ __ ___ | | __| |\n"
@@ -25,11 +49,12 @@ public class Harold {
         System.out.print(banner);
         System.out.println("Arf Arf, I mean WOOF WOOF! I'm Harold.");
         System.out.println("What can I do for you, besides eat my poopoo?");
+        if (loadMessage != null) {
+            System.out.println("OOPS!!! " + loadMessage);
+        }
         System.out.println(separator);
 
         Scanner scanner = new Scanner(System.in);
-        Task[] tasks = new Task[100];
-        int taskCount = 0;
         while (scanner.hasNextLine()) {
             String command = scanner.nextLine();
             System.out.println(separator);
@@ -58,12 +83,14 @@ public class Harold {
                 case MARK -> {
                     int index = parseTaskIndex(command, "mark", taskCount);
                     tasks[index].markAsDone();
+                    storage.save(tasks, taskCount);
                     System.out.println("Nice! I've marked this task as done:");
                     System.out.printf("  %s%n", tasks[index]);
                 }
                 case UNMARK -> {
                     int index = parseTaskIndex(command, "unmark", taskCount);
                     tasks[index].markAsNotDone();
+                    storage.save(tasks, taskCount);
                     System.out.println("OK, I've marked this task as not done yet:");
                     System.out.printf("  %s%n", tasks[index]);
                 }
@@ -75,6 +102,7 @@ public class Harold {
                     }
                     tasks[taskCount - 1] = null;
                     taskCount--;
+                    storage.save(tasks, taskCount);
                     System.out.println("DELETED. I've removed this task:");
                     System.out.printf("  %s%n", removedTask);
 
@@ -90,6 +118,7 @@ public class Harold {
                     requireDescription(description, "todo");
                     requireSpaceInTaskList(taskCount, tasks.length);
                     tasks[taskCount++] = new Todo(description);
+                    storage.save(tasks, taskCount);
                     printTaskAdded(tasks[taskCount - 1], taskCount);
                 }
                 case DEADLINE -> {
@@ -108,6 +137,7 @@ public class Harold {
                     }
                     requireSpaceInTaskList(taskCount, tasks.length);
                     tasks[taskCount++] = new Deadline(description, by);
+                    storage.save(tasks, taskCount);
                     printTaskAdded(tasks[taskCount - 1], taskCount);
                 }
                 case EVENT -> {
@@ -136,6 +166,7 @@ public class Harold {
                     }
                     requireSpaceInTaskList(taskCount, tasks.length);
                     tasks[taskCount++] = new Event(description, from, to);
+                    storage.save(tasks, taskCount);
                     printTaskAdded(tasks[taskCount - 1], taskCount);
                 }
                 case UNKNOWN ->
@@ -145,6 +176,8 @@ public class Harold {
                 }
             } catch (HaroldException e) {
                 System.out.println("OOPS!!! " + e.getMessage());
+            } catch (IOException e) {
+                System.out.println("OOPS!!! I couldn't save your tasks. Please try again.");
             }
 
             System.out.println(separator);
