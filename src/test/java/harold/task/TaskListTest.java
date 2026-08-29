@@ -154,6 +154,32 @@ class TaskListTest {
         );
     }
 
+    @Test
+    void find_keywordInSomeDescriptions_returnsMatchesInOriginalOrder() {
+        Todo firstMatch = new Todo("read book");
+        Todo nonMatch = new Todo("buy groceries");
+        Todo secondMatch = new Todo("return book");
+        TaskList tasks = new TaskList(List.of(firstMatch, nonMatch, secondMatch));
+
+        List<Task> matchingTasks = tasks.find("book");
+
+        assertAll(
+                () -> assertEquals(2, matchingTasks.size()),
+                () -> assertSame(firstMatch, matchingTasks.get(0)),
+                () -> assertSame(secondMatch, matchingTasks.get(1)),
+                () -> assertEquals(3, tasks.size())
+        );
+    }
+
+    @Test
+    void find_keywordAbsent_returnsEmptyList() {
+        TaskList tasks = new TaskList(List.of(new Todo("read book")));
+
+        List<Task> matchingTasks = tasks.find("magazine");
+
+        assertTrue(matchingTasks.isEmpty());
+    }
+
     private static List<Task> createTasks(int taskCount) {
         List<Task> tasks = new ArrayList<>();
         for (int i = 0; i < taskCount; i++) {
