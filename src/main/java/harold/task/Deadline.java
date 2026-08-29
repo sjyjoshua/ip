@@ -1,3 +1,5 @@
+package harold.task;
+
 import java.time.LocalDate;
 
 /**
@@ -19,7 +21,7 @@ public class Deadline extends Task {
     }
 
     @Override
-    protected String getTypeIcon() {
+    public String getTypeIcon() {
         return "D";
     }
 

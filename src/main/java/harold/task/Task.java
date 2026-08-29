@@ -1,3 +1,5 @@
+package harold.task;
+
 /**
  * Represents a task that can be marked as done or not done.
  */
@@ -35,7 +37,10 @@ public abstract class Task {
         return isDone;
     }
 
-    protected abstract String getTypeIcon();
+    /**
+     * Returns the icon that identifies the task type.
+     */
+    public abstract String getTypeIcon();
 
     @Override
     public String toString() {

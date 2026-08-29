@@ -1,3 +1,5 @@
+package harold.storage;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -5,6 +7,13 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+
+import harold.task.Deadline;
+import harold.task.Event;
+import harold.task.Task;
+import harold.task.TaskDate;
+import harold.task.TaskList;
+import harold.task.Todo;
 
 /**
  * Loads and saves Harold's tasks using an OS-independent relative path.

@@ -1,3 +1,5 @@
+package harold;
+
 /**
  * Represents an invalid command or task operation in Harold.
  */

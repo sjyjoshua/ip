@@ -9,13 +9,13 @@ from pathlib import Path
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-SOURCES = sorted((PROJECT_ROOT / "src" / "main" / "java").glob("*.java"))
+SOURCES = sorted((PROJECT_ROOT / "src" / "main" / "java").rglob("*.java"))
 
 
 def run_harold(build_directory: Path, working_directory: Path, commands: list[str]) -> str:
     """Run Harold with the supplied commands and return its console output."""
     result = subprocess.run(
-        ["java", "-cp", str(build_directory), "Harold"],
+        ["java", "-cp", str(build_directory), "harold.Harold"],
         cwd=working_directory,
         input="\n".join(commands) + "\n",
         capture_output=True,

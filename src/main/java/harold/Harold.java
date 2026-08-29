@@ -1,7 +1,19 @@
+package harold;
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+
+import harold.command.CommandType;
+import harold.storage.Storage;
+import harold.task.Deadline;
+import harold.task.Event;
+import harold.task.Task;
+import harold.task.TaskDate;
+import harold.task.TaskList;
+import harold.task.Todo;
+import harold.ui.Ui;
 
 public class Harold {
     public static void main(String[] args) {

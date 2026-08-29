@@ -1,3 +1,5 @@
+package harold.task;
+
 import java.time.LocalDate;
 
 /**
@@ -28,7 +30,7 @@ public class Event extends Task {
     }
 
     @Override
-    protected String getTypeIcon() {
+    public String getTypeIcon() {
         return "E";
     }
 

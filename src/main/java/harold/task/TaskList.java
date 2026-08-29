@@ -1,5 +1,9 @@
+package harold.task;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import harold.HaroldException;
 
 /**
  * Owns Harold's task collection and provides operations that modify it.

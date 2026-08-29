@@ -1,4 +1,9 @@
+package harold.ui;
+
 import java.util.Scanner;
+
+import harold.task.Task;
+import harold.task.TaskList;
 
 /**
  * Handles console input and output for Harold.

@@ -1,3 +1,5 @@
+package harold.command;
+
 /**
  * Identifies the commands supported by Harold.
  */

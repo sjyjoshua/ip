@@ -98,7 +98,7 @@ def main() -> int:
         print(f"TEST PLAN ERROR: {error}", file=sys.stderr)
         return 2
 
-    sources = sorted((PROJECT_ROOT / "src" / "main" / "java").glob("*.java"))
+    sources = sorted((PROJECT_ROOT / "src" / "main" / "java").rglob("*.java"))
     if not sources:
         print("COMPILE ERROR: No Java source files found.", file=sys.stderr)
         return 2
@@ -122,7 +122,7 @@ def main() -> int:
             case_directory.mkdir()
             try:
                 result = subprocess.run(
-                    ["java", "-cp", build_directory, "Harold"],
+                    ["java", "-cp", build_directory, "harold.Harold"],
                     cwd=case_directory,
                     input="\n".join(case.commands) + "\n",
                     capture_output=True,
