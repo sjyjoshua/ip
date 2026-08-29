@@ -62,97 +62,97 @@ public class Harold {
 
                 CommandType commandType = getCommandType(command);
                 switch (commandType) {
-                case BYE -> {
-                    ui.showGoodbye();
-                    return;
-                }
-                case LIST -> {
-                    if (!command.equals("list")) {
-                        throw new HaroldException("The list command does not accept extra text.");
+                    case BYE -> {
+                        ui.showGoodbye();
+                        return;
                     }
-                    ui.showTaskList(tasks);
-                }
-                case MARK -> {
-                    int index = parseTaskIndex(command, "mark", tasks.size());
-                    Task task = tasks.mark(index);
-                    storage.save(tasks);
-                    ui.showTaskMarked(task);
-                }
-                case UNMARK -> {
-                    int index = parseTaskIndex(command, "unmark", tasks.size());
-                    Task task = tasks.unmark(index);
-                    storage.save(tasks);
-                    ui.showTaskUnmarked(task);
-                }
-                case DELETE -> {
-                    int index = parseTaskIndex(command, "delete", tasks.size());
-                    Task removedTask = tasks.delete(index);
-                    storage.save(tasks);
-                    ui.showTaskDeleted(removedTask, tasks.size());
-                }
-                case TODO -> {
-                    String description = command.length() > 4 ? command.substring(5).trim() : "";
-                    requireDescription(description, "todo");
-                    Task task = new Todo(description);
-                    tasks.add(task);
-                    storage.save(tasks);
-                    ui.showTaskAdded(task, tasks.size());
-                }
-                case DEADLINE -> {
-                    int byIndex = command.indexOf(" /by");
-                    if (byIndex < 0 || byIndex + 4 < command.length()
-                            && !Character.isWhitespace(command.charAt(byIndex + 4))) {
+                    case LIST -> {
+                        if (!command.equals("list")) {
+                            throw new HaroldException("The list command does not accept extra text.");
+                        }
+                        ui.showTaskList(tasks);
+                    }
+                    case MARK -> {
+                        int index = parseTaskIndex(command, "mark", tasks.size());
+                        Task task = tasks.mark(index);
+                        storage.save(tasks);
+                        ui.showTaskMarked(task);
+                    }
+                    case UNMARK -> {
+                        int index = parseTaskIndex(command, "unmark", tasks.size());
+                        Task task = tasks.unmark(index);
+                        storage.save(tasks);
+                        ui.showTaskUnmarked(task);
+                    }
+                    case DELETE -> {
+                        int index = parseTaskIndex(command, "delete", tasks.size());
+                        Task removedTask = tasks.delete(index);
+                        storage.save(tasks);
+                        ui.showTaskDeleted(removedTask, tasks.size());
+                    }
+                    case TODO -> {
+                        String description = command.length() > 4 ? command.substring(5).trim() : "";
+                        requireDescription(description, "todo");
+                        Task task = new Todo(description);
+                        tasks.add(task);
+                        storage.save(tasks);
+                        ui.showTaskAdded(task, tasks.size());
+                    }
+                    case DEADLINE -> {
+                        int byIndex = command.indexOf(" /by");
+                        if (byIndex < 0 || byIndex + 4 < command.length()
+                                && !Character.isWhitespace(command.charAt(byIndex + 4))) {
+                            throw new HaroldException(
+                                    "A deadline needs '/by <date or time>'. "
+                                            + "Try: deadline <description> /by <date or time>");
+                        }
+                        String description = byIndex < 9 ? "" : command.substring(9, byIndex).trim();
+                        String byText = command.substring(byIndex + 4).trim();
+                        requireDescription(description, "deadline");
+                        if (byText.isEmpty()) {
+                            throw new HaroldException("Please enter a date after /by.");
+                        }
+                        LocalDate by = parseDate(byText, "/by");
+                        Task task = new Deadline(description, by);
+                        tasks.add(task);
+                        storage.save(tasks);
+                        ui.showTaskAdded(task, tasks.size());
+                    }
+                    case EVENT -> {
+                        int fromIndex = command.indexOf(" /from");
+                        if (fromIndex < 0 || fromIndex + 6 < command.length()
+                                && !Character.isWhitespace(command.charAt(fromIndex + 6))) {
+                            throw new HaroldException(
+                                    "An event needs '/from <start>'. "
+                                            + "Try: event <description> /from <start> /to <end>");
+                        }
+                        int toIndex = command.indexOf(" /to", fromIndex + 6);
+                        if (toIndex < 0 || toIndex + 4 < command.length()
+                                && !Character.isWhitespace(command.charAt(toIndex + 4))) {
+                            throw new HaroldException(
+                                    "An event needs '/to <end>'. "
+                                            + "Try: event <description> /from <start> /to <end>");
+                        }
+                        String description = fromIndex < 6 ? "" : command.substring(6, fromIndex).trim();
+                        String fromText = command.substring(fromIndex + 6, toIndex).trim();
+                        String toText = command.substring(toIndex + 4).trim();
+                        requireDescription(description, "event");
+                        if (fromText.isEmpty()) {
+                            throw new HaroldException("Please enter a start date after /from.");
+                        } else if (toText.isEmpty()) {
+                            throw new HaroldException("Please enter an end date after /to.");
+                        }
+                        LocalDate from = parseDate(fromText, "/from");
+                        LocalDate to = parseDate(toText, "/to");
+                        Task task = new Event(description, from, to);
+                        tasks.add(task);
+                        storage.save(tasks);
+                        ui.showTaskAdded(task, tasks.size());
+                    }
+                    case UNKNOWN ->
                         throw new HaroldException(
-                                "A deadline needs '/by <date or time>'. "
-                                        + "Try: deadline <description> /by <date or time>");
-                    }
-                    String description = byIndex < 9 ? "" : command.substring(9, byIndex).trim();
-                    String byText = command.substring(byIndex + 4).trim();
-                    requireDescription(description, "deadline");
-                    if (byText.isEmpty()) {
-                        throw new HaroldException("Please enter a date after /by.");
-                    }
-                    LocalDate by = parseDate(byText, "/by");
-                    Task task = new Deadline(description, by);
-                    tasks.add(task);
-                    storage.save(tasks);
-                    ui.showTaskAdded(task, tasks.size());
-                }
-                case EVENT -> {
-                    int fromIndex = command.indexOf(" /from");
-                    if (fromIndex < 0 || fromIndex + 6 < command.length()
-                            && !Character.isWhitespace(command.charAt(fromIndex + 6))) {
-                        throw new HaroldException(
-                                "An event needs '/from <start>'. "
-                                        + "Try: event <description> /from <start> /to <end>");
-                    }
-                    int toIndex = command.indexOf(" /to", fromIndex + 6);
-                    if (toIndex < 0 || toIndex + 4 < command.length()
-                            && !Character.isWhitespace(command.charAt(toIndex + 4))) {
-                        throw new HaroldException(
-                                "An event needs '/to <end>'. "
-                                        + "Try: event <description> /from <start> /to <end>");
-                    }
-                    String description = fromIndex < 6 ? "" : command.substring(6, fromIndex).trim();
-                    String fromText = command.substring(fromIndex + 6, toIndex).trim();
-                    String toText = command.substring(toIndex + 4).trim();
-                    requireDescription(description, "event");
-                    if (fromText.isEmpty()) {
-                        throw new HaroldException("Please enter a start date after /from.");
-                    } else if (toText.isEmpty()) {
-                        throw new HaroldException("Please enter an end date after /to.");
-                    }
-                    LocalDate from = parseDate(fromText, "/from");
-                    LocalDate to = parseDate(toText, "/to");
-                    Task task = new Event(description, from, to);
-                    tasks.add(task);
-                    storage.save(tasks);
-                    ui.showTaskAdded(task, tasks.size());
-                }
-                case UNKNOWN ->
-                    throw new HaroldException(
-                            "I don't know what '" + command + "' means. "
-                                    + "Try todo, deadline, event, list, mark, unmark, delete, or bye.");
+                                "I don't know what '" + command + "' means. "
+                                        + "Try todo, deadline, event, list, mark, unmark, delete, or bye.");
                 }
             } catch (HaroldException e) {
                 ui.showError(e.getMessage());
@@ -242,17 +242,17 @@ public class Harold {
         for (int i = 0; i < command.length(); i++) {
             char character = Character.toLowerCase(command.charAt(i));
             switch (character) {
-            case 'b':
-                hasB = true;
-                break;
-            case 'y':
-                hasY = true;
-                break;
-            case 'e':
-                hasE = true;
-                break;
-            default:
-                return false;
+                case 'b':
+                    hasB = true;
+                    break;
+                case 'y':
+                    hasY = true;
+                    break;
+                case 'e':
+                    hasE = true;
+                    break;
+                default:
+                    return false;
             }
         }
 

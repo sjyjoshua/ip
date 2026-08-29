@@ -32,14 +32,14 @@ public enum CommandType {
     public static CommandType fromCommand(String command) {
         String commandWord = command.split("\\s+", 2)[0];
         return switch (commandWord) {
-        case "list" -> LIST;
-        case "mark" -> MARK;
-        case "unmark" -> UNMARK;
-        case "delete" -> DELETE;
-        case "todo" -> TODO;
-        case "deadline" -> DEADLINE;
-        case "event" -> EVENT;
-        default -> UNKNOWN;
+            case "list" -> LIST;
+            case "mark" -> MARK;
+            case "unmark" -> UNMARK;
+            case "delete" -> DELETE;
+            case "todo" -> TODO;
+            case "deadline" -> DEADLINE;
+            case "event" -> EVENT;
+            default -> UNKNOWN;
         };
     }
 }
