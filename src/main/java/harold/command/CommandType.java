@@ -20,6 +20,8 @@ public enum CommandType {
     DEADLINE,
     /** Adds an event. */
     EVENT,
+    /** Finds tasks whose descriptions contain a keyword. */
+    FIND,
     /** Represents an unsupported command word. */
     UNKNOWN;
 
@@ -39,6 +41,7 @@ public enum CommandType {
             case "todo" -> TODO;
             case "deadline" -> DEADLINE;
             case "event" -> EVENT;
+            case "find" -> FIND;
             default -> UNKNOWN;
         };
     }

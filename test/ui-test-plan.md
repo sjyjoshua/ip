@@ -239,7 +239,7 @@ OOPS!!! Task 0 does not exist. Choose a number from 1 to 1.
 #### Output 16
 
 ```text
-OOPS!!! I don't know what 'blah' means. Try todo, deadline, event, list, mark, unmark, delete, or bye.
+OOPS!!! I don't know what 'blah' means. Try todo, deadline, event, list, find, mark, unmark, delete, or bye.
 ```
 
 #### Output 17
@@ -399,6 +399,74 @@ OOPS!!! Please enter the date after /from as yyyy-MM-dd, for example 2019-10-15.
 
 ```text
 OOPS!!! Please enter the date after /to as yyyy-MM-dd, for example 2019-10-15.
+```
+
+#### Output 7
+
+```text
+Goodbye! Please take me down soon hehe!
+```
+
+## TC06: Find tasks by description keyword
+
+**Aim:** Verify that find returns matching tasks in their original order and handles missing matches and keywords.
+
+### Inputs
+
+```text
+todo read book
+deadline return book /by 2026-09-01
+todo buy groceries
+find book
+find magazine
+find
+bye
+```
+
+### Expected outputs
+
+#### Output 1
+
+```text
+Got it. I've added this task:
+  [T][ ] read book
+Now you have 1 task in the list.
+```
+
+#### Output 2
+
+```text
+Got it. I've added this task:
+  [D][ ] return book (by: Sep 1 2026)
+Now you have 2 tasks in the list.
+```
+
+#### Output 3
+
+```text
+Got it. I've added this task:
+  [T][ ] buy groceries
+Now you have 3 tasks in the list.
+```
+
+#### Output 4
+
+```text
+Here are the matching tasks in your list:
+1.[T][ ] read book
+2.[D][ ] return book (by: Sep 1 2026)
+```
+
+#### Output 5
+
+```text
+Here are the matching tasks in your list:
+```
+
+#### Output 6
+
+```text
+OOPS!!! Please enter a keyword after find. Try: find <keyword>
 ```
 
 #### Output 7

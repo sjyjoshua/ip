@@ -149,10 +149,18 @@ public class Harold {
                         storage.save(tasks);
                         ui.showTaskAdded(task, tasks.size());
                     }
+                    case FIND -> {
+                        String keyword = command.length() > 4 ? command.substring(5).trim() : "";
+                        if (keyword.isEmpty()) {
+                            throw new HaroldException(
+                                    "Please enter a keyword after find. Try: find <keyword>");
+                        }
+                        ui.showMatchingTasks(tasks.find(keyword));
+                    }
                     case UNKNOWN ->
                         throw new HaroldException(
                                 "I don't know what '" + command + "' means. "
-                                        + "Try todo, deadline, event, list, mark, unmark, delete, or bye.");
+                                        + "Try todo, deadline, event, list, find, mark, unmark, delete, or bye.");
                 }
             } catch (HaroldException e) {
                 ui.showError(e.getMessage());
