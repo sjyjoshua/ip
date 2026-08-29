@@ -23,6 +23,8 @@ public class TaskList {
 
     /**
      * Creates a task list containing up to the supported number of initial tasks.
+     *
+     * @param initialTasks Tasks with which to initialize the list.
      */
     public TaskList(List<Task> initialTasks) {
         int acceptedTaskCount = Math.min(initialTasks.size(), MAX_TASK_COUNT);
@@ -32,6 +34,9 @@ public class TaskList {
 
     /**
      * Adds a task to the end of the list.
+     *
+     * @param task Task to add.
+     * @throws HaroldException If the task list is full.
      */
     public void add(Task task) throws HaroldException {
         if (tasks.size() >= MAX_TASK_COUNT) {
@@ -44,6 +49,10 @@ public class TaskList {
 
     /**
      * Deletes and returns the task at the specified zero-based index.
+     *
+     * @param index Zero-based task index.
+     * @return Deleted task.
+     * @throws IndexOutOfBoundsException If the index does not identify a task.
      */
     public Task delete(int index) {
         return tasks.remove(index);
@@ -51,6 +60,10 @@ public class TaskList {
 
     /**
      * Marks and returns the task at the specified zero-based index.
+     *
+     * @param index Zero-based task index.
+     * @return Marked task.
+     * @throws IndexOutOfBoundsException If the index does not identify a task.
      */
     public Task mark(int index) {
         Task task = tasks.get(index);
@@ -60,6 +73,10 @@ public class TaskList {
 
     /**
      * Unmarks and returns the task at the specified zero-based index.
+     *
+     * @param index Zero-based task index.
+     * @return Unmarked task.
+     * @throws IndexOutOfBoundsException If the index does not identify a task.
      */
     public Task unmark(int index) {
         Task task = tasks.get(index);
@@ -69,6 +86,10 @@ public class TaskList {
 
     /**
      * Returns the task at the specified zero-based index.
+     *
+     * @param index Zero-based task index.
+     * @return Task at the specified index.
+     * @throws IndexOutOfBoundsException If the index does not identify a task.
      */
     public Task get(int index) {
         return tasks.get(index);
@@ -76,6 +97,8 @@ public class TaskList {
 
     /**
      * Returns the number of tasks in the list.
+     *
+     * @return Number of tasks.
      */
     public int size() {
         return tasks.size();
@@ -83,6 +106,8 @@ public class TaskList {
 
     /**
      * Returns the number of initial tasks omitted because the list was full.
+     *
+     * @return Number of discarded initial tasks.
      */
     public int getDiscardedTaskCount() {
         return discardedTaskCount;

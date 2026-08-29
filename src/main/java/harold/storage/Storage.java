@@ -25,6 +25,8 @@ public class Storage {
 
     /**
      * Creates storage backed by the given file path.
+     *
+     * @param filePath Path of the task data file.
      */
     public Storage(Path filePath) {
         this.filePath = filePath;
@@ -32,6 +34,9 @@ public class Storage {
 
     /**
      * Loads all valid task records, skipping malformed records without failing startup.
+     *
+     * @return Loaded tasks and the number of malformed records skipped.
+     * @throws IOException If the data file cannot be read.
      */
     public LoadResult load() throws IOException {
         List<Task> tasks = new ArrayList<>();
@@ -53,6 +58,9 @@ public class Storage {
 
     /**
      * Saves the current tasks, creating the parent directory when necessary.
+     *
+     * @param tasks Tasks to save.
+     * @throws IOException If the data file cannot be written.
      */
     public void save(TaskList tasks) throws IOException {
         Path parentDirectory = filePath.getParent();
@@ -67,6 +75,13 @@ public class Storage {
         Files.write(filePath, lines, StandardCharsets.UTF_8);
     }
 
+    /**
+     * Converts one persisted record into its corresponding task.
+     *
+     * @param line Persisted task record.
+     * @return Task represented by the record.
+     * @throws IllegalArgumentException If the record is malformed.
+     */
     private static Task parseTask(String line) {
         String[] fields = line.split(FIELD_SEPARATOR, -1);
         if (fields.length < 3) {
@@ -112,6 +127,12 @@ public class Storage {
         return task;
     }
 
+    /**
+     * Converts a task into the record format used in the data file.
+     *
+     * @param task Task to persist.
+     * @return Serialized task record.
+     */
     private static String formatTask(Task task) {
         String status = task.isDone() ? "1" : "0";
         String commonFields = task.getTypeIcon() + FIELD_SEPARATOR + status
@@ -126,14 +147,34 @@ public class Storage {
         return commonFields;
     }
 
+    /**
+     * Encodes an arbitrary task field safely for storage.
+     *
+     * @param value Field value to encode.
+     * @return Base64 representation of the field value.
+     */
     private static String encode(String value) {
         return Base64.getEncoder().encodeToString(value.getBytes(StandardCharsets.UTF_8));
     }
 
+    /**
+     * Decodes a task field from its stored representation.
+     *
+     * @param value Base64 field value.
+     * @return Decoded text.
+     * @throws IllegalArgumentException If the value is not valid Base64.
+     */
     private static String decode(String value) {
         return new String(Base64.getDecoder().decode(value), StandardCharsets.UTF_8);
     }
 
+    /**
+     * Verifies that a persisted task record has the required number of fields.
+     *
+     * @param fields Fields parsed from a task record.
+     * @param expectedCount Required number of fields.
+     * @throws IllegalArgumentException If the number of fields is unexpected.
+     */
     private static void requireFieldCount(String[] fields, int expectedCount) {
         if (fields.length != expectedCount) {
             throw new IllegalArgumentException("Unexpected number of task fields");
@@ -142,6 +183,9 @@ public class Storage {
 
     /**
      * Contains successfully loaded tasks and the number of malformed records skipped.
+     *
+     * @param tasks Successfully loaded tasks.
+     * @param skippedLineCount Number of malformed records skipped.
      */
     public record LoadResult(List<Task> tasks, int skippedLineCount) {
     }

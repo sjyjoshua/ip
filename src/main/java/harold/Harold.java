@@ -15,7 +15,21 @@ import harold.task.TaskList;
 import harold.task.Todo;
 import harold.ui.Ui;
 
+/**
+ * Starts Harold and coordinates command handling, task storage, and user interaction.
+ */
 public class Harold {
+    /**
+     * Creates the Harold application coordinator.
+     */
+    public Harold() {
+    }
+
+    /**
+     * Loads saved tasks and runs Harold's command loop.
+     *
+     * @param args Command-line arguments, which Harold does not currently use.
+     */
     public static void main(String[] args) {
         Ui ui = new Ui();
         Storage storage = new Storage(Path.of("data", "harold.txt"));

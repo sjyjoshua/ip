@@ -40,6 +40,8 @@ public class Ui {
 
     /**
      * Displays the greeting and an optional message about loading task data.
+     *
+     * @param loadMessage Loading warning to display, or {@code null} when loading succeeded.
      */
     public void showWelcome(String loadMessage) {
         System.out.println(SEPARATOR);
@@ -54,6 +56,8 @@ public class Ui {
 
     /**
      * Returns whether another command is available from the user.
+     *
+     * @return {@code true} if another command can be read.
      */
     public boolean hasNextCommand() {
         return scanner.hasNextLine();
@@ -61,6 +65,8 @@ public class Ui {
 
     /**
      * Reads and returns the next command from the user.
+     *
+     * @return Next command entered by the user.
      */
     public String readCommand() {
         return scanner.nextLine();
@@ -83,6 +89,8 @@ public class Ui {
 
     /**
      * Displays all tasks in their current order.
+     *
+     * @param tasks Tasks to display.
      */
     public void showTaskList(TaskList tasks) {
         System.out.println("Here are the tasks in your list:");
@@ -93,6 +101,8 @@ public class Ui {
 
     /**
      * Displays confirmation that a task was marked complete.
+     *
+     * @param task Task that was marked.
      */
     public void showTaskMarked(Task task) {
         System.out.println("Nice! I've marked this task as done:");
@@ -101,6 +111,8 @@ public class Ui {
 
     /**
      * Displays confirmation that a task was marked incomplete.
+     *
+     * @param task Task that was unmarked.
      */
     public void showTaskUnmarked(Task task) {
         System.out.println("OK, I've marked this task as not done yet:");
@@ -109,6 +121,9 @@ public class Ui {
 
     /**
      * Displays confirmation that a task was added and the new task count.
+     *
+     * @param task Task that was added.
+     * @param taskCount Number of tasks after the addition.
      */
     public void showTaskAdded(Task task, int taskCount) {
         System.out.println("Got it. I've added this task:");
@@ -118,6 +133,9 @@ public class Ui {
 
     /**
      * Displays confirmation that a task was deleted and the new task count.
+     *
+     * @param task Task that was deleted.
+     * @param taskCount Number of tasks after the deletion.
      */
     public void showTaskDeleted(Task task, int taskCount) {
         System.out.println("DELETED. I've removed this task:");
@@ -127,11 +145,18 @@ public class Ui {
 
     /**
      * Displays an error message using Harold's error prefix.
+     *
+     * @param message Error message to display.
      */
     public void showError(String message) {
         System.out.println("OOPS!!! " + message);
     }
 
+    /**
+     * Displays the current task count using the correct singular or plural noun.
+     *
+     * @param taskCount Number of tasks currently stored.
+     */
     private static void showTaskCount(int taskCount) {
         String taskWord = taskCount == 1 ? "task" : "tasks";
         System.out.printf("Now you have %d %s in the list.%n", taskCount, taskWord);

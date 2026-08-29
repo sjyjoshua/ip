@@ -9,22 +9,32 @@ public abstract class Task {
 
     /**
      * Creates an incomplete task with the given description.
+     *
+     * @param description Description of the task.
      */
     protected Task(String description) {
         this.description = description;
         this.isDone = false;
     }
 
+    /**
+     * Marks this task as complete.
+     */
     public void markAsDone() {
         isDone = true;
     }
 
+    /**
+     * Marks this task as incomplete.
+     */
     public void markAsNotDone() {
         isDone = false;
     }
 
     /**
      * Returns the task description.
+     *
+     * @return Task description.
      */
     public String getDescription() {
         return description;
@@ -32,6 +42,8 @@ public abstract class Task {
 
     /**
      * Returns whether the task is complete.
+     *
+     * @return {@code true} if the task is complete.
      */
     public boolean isDone() {
         return isDone;
@@ -39,9 +51,16 @@ public abstract class Task {
 
     /**
      * Returns the icon that identifies the task type.
+     *
+     * @return Task type icon.
      */
     public abstract String getTypeIcon();
 
+    /**
+     * Returns the task formatted with its type, completion status, and description.
+     *
+     * @return User-facing task representation.
+     */
     @Override
     public String toString() {
         String statusIcon = isDone ? "X" : " ";

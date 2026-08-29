@@ -8,6 +8,12 @@ import java.time.LocalDate;
 public class Deadline extends Task {
     private final LocalDate by;
 
+    /**
+     * Creates an incomplete deadline with the given description and due date.
+     *
+     * @param description Description of the task.
+     * @param by Date by which the task must be completed.
+     */
     public Deadline(String description, LocalDate by) {
         super(description);
         this.by = by;
@@ -15,16 +21,28 @@ public class Deadline extends Task {
 
     /**
      * Returns the deadline date.
+     *
+     * @return Deadline date.
      */
     public LocalDate getBy() {
         return by;
     }
 
+    /**
+     * Returns the icon used to identify deadlines.
+     *
+     * @return Deadline type icon.
+     */
     @Override
     public String getTypeIcon() {
         return "D";
     }
 
+    /**
+     * Returns the deadline formatted with its status, description, and due date.
+     *
+     * @return User-facing deadline representation.
+     */
     @Override
     public String toString() {
         return String.format("%s (by: %s)", super.toString(), TaskDate.format(by));
