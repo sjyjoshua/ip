@@ -45,15 +45,15 @@ public class Storage {
     /**
      * Saves the current tasks, creating the parent directory when necessary.
      */
-    public void save(Task[] tasks, int taskCount) throws IOException {
+    public void save(TaskList tasks) throws IOException {
         Path parentDirectory = filePath.getParent();
         if (parentDirectory != null) {
             Files.createDirectories(parentDirectory);
         }
 
         List<String> lines = new ArrayList<>();
-        for (int i = 0; i < taskCount; i++) {
-            lines.add(formatTask(tasks[i]));
+        for (int i = 0; i < tasks.size(); i++) {
+            lines.add(formatTask(tasks.get(i)));
         }
         Files.write(filePath, lines, StandardCharsets.UTF_8);
     }

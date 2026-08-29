@@ -2,30 +2,25 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
-import java.util.List;
 
 public class Harold {
     public static void main(String[] args) {
         Ui ui = new Ui();
         Storage storage = new Storage(Path.of("data", "harold.txt"));
-        Task[] tasks = new Task[100];
-        int taskCount = 0;
+        TaskList tasks;
         String loadMessage = null;
         try {
             Storage.LoadResult loadResult = storage.load();
-            List<Task> loadedTasks = loadResult.tasks();
-            taskCount = Math.min(loadedTasks.size(), tasks.length);
-            for (int i = 0; i < taskCount; i++) {
-                tasks[i] = loadedTasks.get(i);
-            }
+            tasks = new TaskList(loadResult.tasks());
             int skippedTaskCount = loadResult.skippedLineCount()
-                    + Math.max(0, loadedTasks.size() - tasks.length);
+                    + tasks.getDiscardedTaskCount();
             if (skippedTaskCount > 0) {
                 loadMessage = "I skipped " + skippedTaskCount
                         + " invalid task record(s) while loading your data.";
             }
         } catch (IOException e) {
             loadMessage = "I couldn't load your saved tasks, so I started with an empty list.";
+            tasks = new TaskList();
         }
 
         ui.showWelcome(loadMessage);
@@ -49,38 +44,33 @@ public class Harold {
                     if (!command.equals("list")) {
                         throw new HaroldException("The list command does not accept extra text.");
                     }
-                    ui.showTaskList(tasks, taskCount);
+                    ui.showTaskList(tasks);
                 }
                 case MARK -> {
-                    int index = parseTaskIndex(command, "mark", taskCount);
-                    tasks[index].markAsDone();
-                    storage.save(tasks, taskCount);
-                    ui.showTaskMarked(tasks[index]);
+                    int index = parseTaskIndex(command, "mark", tasks.size());
+                    Task task = tasks.mark(index);
+                    storage.save(tasks);
+                    ui.showTaskMarked(task);
                 }
                 case UNMARK -> {
-                    int index = parseTaskIndex(command, "unmark", taskCount);
-                    tasks[index].markAsNotDone();
-                    storage.save(tasks, taskCount);
-                    ui.showTaskUnmarked(tasks[index]);
+                    int index = parseTaskIndex(command, "unmark", tasks.size());
+                    Task task = tasks.unmark(index);
+                    storage.save(tasks);
+                    ui.showTaskUnmarked(task);
                 }
                 case DELETE -> {
-                    int index = parseTaskIndex(command, "delete", taskCount);
-                    Task removedTask = tasks[index];
-                    for (int k = index; k < taskCount - 1; k++) {
-                        tasks[k] = tasks[k + 1];
-                    }
-                    tasks[taskCount - 1] = null;
-                    taskCount--;
-                    storage.save(tasks, taskCount);
-                    ui.showTaskDeleted(removedTask, taskCount);
+                    int index = parseTaskIndex(command, "delete", tasks.size());
+                    Task removedTask = tasks.delete(index);
+                    storage.save(tasks);
+                    ui.showTaskDeleted(removedTask, tasks.size());
                 }
                 case TODO -> {
                     String description = command.length() > 4 ? command.substring(5).trim() : "";
                     requireDescription(description, "todo");
-                    requireSpaceInTaskList(taskCount, tasks.length);
-                    tasks[taskCount++] = new Todo(description);
-                    storage.save(tasks, taskCount);
-                    ui.showTaskAdded(tasks[taskCount - 1], taskCount);
+                    Task task = new Todo(description);
+                    tasks.add(task);
+                    storage.save(tasks);
+                    ui.showTaskAdded(task, tasks.size());
                 }
                 case DEADLINE -> {
                     int byIndex = command.indexOf(" /by");
@@ -97,10 +87,10 @@ public class Harold {
                         throw new HaroldException("Please enter a date after /by.");
                     }
                     LocalDate by = parseDate(byText, "/by");
-                    requireSpaceInTaskList(taskCount, tasks.length);
-                    tasks[taskCount++] = new Deadline(description, by);
-                    storage.save(tasks, taskCount);
-                    ui.showTaskAdded(tasks[taskCount - 1], taskCount);
+                    Task task = new Deadline(description, by);
+                    tasks.add(task);
+                    storage.save(tasks);
+                    ui.showTaskAdded(task, tasks.size());
                 }
                 case EVENT -> {
                     int fromIndex = command.indexOf(" /from");
@@ -128,10 +118,10 @@ public class Harold {
                     }
                     LocalDate from = parseDate(fromText, "/from");
                     LocalDate to = parseDate(toText, "/to");
-                    requireSpaceInTaskList(taskCount, tasks.length);
-                    tasks[taskCount++] = new Event(description, from, to);
-                    storage.save(tasks, taskCount);
-                    ui.showTaskAdded(tasks[taskCount - 1], taskCount);
+                    Task task = new Event(description, from, to);
+                    tasks.add(task);
+                    storage.save(tasks);
+                    ui.showTaskAdded(task, tasks.size());
                 }
                 case UNKNOWN ->
                     throw new HaroldException(
@@ -210,16 +200,6 @@ public class Harold {
                     "Please enter the date after " + commandMarker
                             + " as yyyy-MM-dd, for example 2019-10-15."
             );
-        }
-    }
-
-    /**
-     * Ensures that another task can be stored in the fixed-size task array.
-     */
-    private static void requireSpaceInTaskList(int taskCount, int capacity)
-            throws HaroldException {
-        if (taskCount >= capacity) {
-            throw new HaroldException("Your task list is full. Complete some tasks before adding more.");
         }
     }
 

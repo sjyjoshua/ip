@@ -79,10 +79,10 @@ public class Ui {
     /**
      * Displays all tasks in their current order.
      */
-    public void showTaskList(Task[] tasks, int taskCount) {
+    public void showTaskList(TaskList tasks) {
         System.out.println("Here are the tasks in your list:");
-        for (int i = 0; i < taskCount; i++) {
-            System.out.printf("%d.%s%n", i + 1, tasks[i]);
+        for (int i = 0; i < tasks.size(); i++) {
+            System.out.printf("%d.%s%n", i + 1, tasks.get(i));
         }
     }
 
