@@ -99,23 +99,23 @@ public class Storage {
 
         String description = decode(fields[2]);
         Task task = switch (fields[0]) {
-        case "T" -> {
-            requireFieldCount(fields, 3);
-            yield new Todo(description);
-        }
-        case "D" -> {
-            requireFieldCount(fields, 4);
-            yield new Deadline(description, TaskDate.parse(decode(fields[3])));
-        }
-        case "E" -> {
-            requireFieldCount(fields, 5);
-            yield new Event(
-                    description,
-                    TaskDate.parse(decode(fields[3])),
-                    TaskDate.parse(decode(fields[4]))
-            );
-        }
-        default -> throw new IllegalArgumentException("Unknown task type");
+            case "T" -> {
+                requireFieldCount(fields, 3);
+                yield new Todo(description);
+            }
+            case "D" -> {
+                requireFieldCount(fields, 4);
+                yield new Deadline(description, TaskDate.parse(decode(fields[3])));
+            }
+            case "E" -> {
+                requireFieldCount(fields, 5);
+                yield new Event(
+                        description,
+                        TaskDate.parse(decode(fields[3])),
+                        TaskDate.parse(decode(fields[4]))
+                );
+            }
+            default -> throw new IllegalArgumentException("Unknown task type");
         };
 
         if (description.isEmpty()) {
