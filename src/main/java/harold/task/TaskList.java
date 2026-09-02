@@ -18,10 +18,12 @@ public class TaskList {
     private final int discardedTaskCount;
 
     /**
-     * Creates an empty task list.
+     * Creates a task list from zero or more tasks.
+     *
+     * @param initialTasks Tasks with which to initialize the list.
      */
-    public TaskList() {
-        this(List.of());
+    public TaskList(Task... initialTasks) {
+        this(List.of(initialTasks));
     }
 
     /**

@@ -52,7 +52,7 @@ class TaskListTest {
 
     @Test
     void add_availableSpace_addsTaskAtEnd() throws HaroldException {
-        TaskList tasks = new TaskList(List.of(new Todo("first")));
+        TaskList tasks = new TaskList(new Todo("first"));
         Todo addedTask = new Todo("second");
 
         tasks.add(addedTask);
@@ -81,7 +81,7 @@ class TaskListTest {
         Todo firstTask = new Todo("first");
         Todo middleTask = new Todo("middle");
         Todo lastTask = new Todo("last");
-        TaskList tasks = new TaskList(List.of(firstTask, middleTask, lastTask));
+        TaskList tasks = new TaskList(firstTask, middleTask, lastTask);
 
         Task deletedTask = tasks.delete(1);
 
@@ -93,7 +93,7 @@ class TaskListTest {
 
     @Test
     void delete_invalidIndexes_throwException() {
-        TaskList tasks = new TaskList(List.of(new Todo("only task")));
+        TaskList tasks = new TaskList(new Todo("only task"));
 
         assertThrows(IndexOutOfBoundsException.class, () -> tasks.delete(-1));
         assertThrows(IndexOutOfBoundsException.class, () -> tasks.delete(1));
@@ -103,7 +103,7 @@ class TaskListTest {
     @Test
     void mark_incompleteTask_marksAndReturnsTask() {
         Todo task = new Todo("task");
-        TaskList tasks = new TaskList(List.of(task));
+        TaskList tasks = new TaskList(task);
 
         Task markedTask = tasks.mark(0);
 
@@ -115,7 +115,7 @@ class TaskListTest {
     void unmark_completedTask_unmarksAndReturnsTask() {
         Todo task = new Todo("task");
         task.markAsDone();
-        TaskList tasks = new TaskList(List.of(task));
+        TaskList tasks = new TaskList(task);
 
         Task unmarkedTask = tasks.unmark(0);
 
@@ -136,7 +136,7 @@ class TaskListTest {
         Todo firstMatch = new Todo("read book");
         Todo nonMatch = new Todo("buy groceries");
         Todo secondMatch = new Todo("return book");
-        TaskList tasks = new TaskList(List.of(firstMatch, nonMatch, secondMatch));
+        TaskList tasks = new TaskList(firstMatch, nonMatch, secondMatch);
 
         List<Task> matchingTasks = tasks.find("book");
 
@@ -148,7 +148,7 @@ class TaskListTest {
 
     @Test
     void find_keywordAbsent_returnsEmptyList() {
-        TaskList tasks = new TaskList(List.of(new Todo("read book")));
+        TaskList tasks = new TaskList(new Todo("read book"));
 
         List<Task> matchingTasks = tasks.find("magazine");
 
@@ -160,7 +160,7 @@ class TaskListTest {
         Todo closestMatch = new Todo("return book");
         Todo secondMatch = new Todo("book a room");
         Todo unrelatedTask = new Todo("buy groceries");
-        TaskList tasks = new TaskList(List.of(secondMatch, unrelatedTask, closestMatch));
+        TaskList tasks = new TaskList(secondMatch, unrelatedTask, closestMatch);
 
         List<Task> similarTasks = tasks.findSimilar("return bok", 3);
 
@@ -172,7 +172,7 @@ class TaskListTest {
     @Test
     void findSimilar_differentCapitalization_matchesIgnoringCase() {
         Todo matchingTask = new Todo("read book");
-        TaskList tasks = new TaskList(List.of(matchingTask));
+        TaskList tasks = new TaskList(matchingTask);
 
         List<Task> similarTasks = tasks.findSimilar("BOOOK", 3);
 
@@ -182,7 +182,7 @@ class TaskListTest {
 
     @Test
     void findSimilar_unrelatedKeyword_returnsEmptyList() {
-        TaskList tasks = new TaskList(List.of(new Todo("read book")));
+        TaskList tasks = new TaskList(new Todo("read book"));
 
         List<Task> similarTasks = tasks.findSimilar("magazine", 3);
 
@@ -191,11 +191,11 @@ class TaskListTest {
 
     @Test
     void findSimilar_moreMatchesThanLimit_returnsOnlyRequestedCount() {
-        TaskList tasks = new TaskList(List.of(
+        TaskList tasks = new TaskList(
                 new Todo("read book"),
                 new Todo("return book"),
                 new Todo("book a room")
-        ));
+        );
 
         List<Task> similarTasks = tasks.findSimilar("boook", 2);
 
