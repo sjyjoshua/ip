@@ -1,6 +1,5 @@
 package harold.task;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -21,10 +20,8 @@ class TaskListTest {
     void constructor_noInitialTasks_createsEmptyList() {
         TaskList tasks = new TaskList();
 
-        assertAll(
-                () -> assertEquals(0, tasks.size()),
-                () -> assertEquals(0, tasks.getDiscardedTaskCount())
-        );
+        assertEquals(0, tasks.size());
+        assertEquals(0, tasks.getDiscardedTaskCount());
     }
 
     @Test
@@ -36,12 +33,10 @@ class TaskListTest {
         TaskList tasks = new TaskList(initialTasks);
         initialTasks.clear();
 
-        assertAll(
-                () -> assertEquals(2, tasks.size()),
-                () -> assertSame(firstTask, tasks.get(0)),
-                () -> assertSame(secondTask, tasks.get(1)),
-                () -> assertEquals(0, tasks.getDiscardedTaskCount())
-        );
+        assertEquals(2, tasks.size());
+        assertSame(firstTask, tasks.get(0));
+        assertSame(secondTask, tasks.get(1));
+        assertEquals(0, tasks.getDiscardedTaskCount());
     }
 
     @Test
@@ -50,11 +45,9 @@ class TaskListTest {
 
         TaskList tasks = new TaskList(initialTasks);
 
-        assertAll(
-                () -> assertEquals(MAX_TASK_COUNT, tasks.size()),
-                () -> assertEquals(2, tasks.getDiscardedTaskCount()),
-                () -> assertSame(initialTasks.get(MAX_TASK_COUNT - 1), tasks.get(tasks.size() - 1))
-        );
+        assertEquals(MAX_TASK_COUNT, tasks.size());
+        assertEquals(2, tasks.getDiscardedTaskCount());
+        assertSame(initialTasks.get(MAX_TASK_COUNT - 1), tasks.get(tasks.size() - 1));
     }
 
     @Test
@@ -64,10 +57,8 @@ class TaskListTest {
 
         tasks.add(addedTask);
 
-        assertAll(
-                () -> assertEquals(2, tasks.size()),
-                () -> assertSame(addedTask, tasks.get(1))
-        );
+        assertEquals(2, tasks.size());
+        assertSame(addedTask, tasks.get(1));
     }
 
     @Test
@@ -76,17 +67,13 @@ class TaskListTest {
         Todo overflowTask = new Todo("overflow");
 
         HaroldException exception = assertThrows(
-                HaroldException.class,
-                () -> tasks.add(overflowTask)
-        );
+                HaroldException.class, () -> tasks.add(overflowTask));
 
-        assertAll(
-                () -> assertEquals(
-                        "Your task list is full. Complete some tasks before adding more.",
-                        exception.getMessage()
-                ),
-                () -> assertEquals(MAX_TASK_COUNT, tasks.size())
+        assertEquals(
+                "Your task list is full. Complete some tasks before adding more.",
+                exception.getMessage()
         );
+        assertEquals(MAX_TASK_COUNT, tasks.size());
     }
 
     @Test
@@ -98,23 +85,19 @@ class TaskListTest {
 
         Task deletedTask = tasks.delete(1);
 
-        assertAll(
-                () -> assertSame(middleTask, deletedTask),
-                () -> assertEquals(2, tasks.size()),
-                () -> assertSame(firstTask, tasks.get(0)),
-                () -> assertSame(lastTask, tasks.get(1))
-        );
+        assertSame(middleTask, deletedTask);
+        assertEquals(2, tasks.size());
+        assertSame(firstTask, tasks.get(0));
+        assertSame(lastTask, tasks.get(1));
     }
 
     @Test
     void delete_invalidIndexes_throwException() {
         TaskList tasks = new TaskList(List.of(new Todo("only task")));
 
-        assertAll(
-                () -> assertThrows(IndexOutOfBoundsException.class, () -> tasks.delete(-1)),
-                () -> assertThrows(IndexOutOfBoundsException.class, () -> tasks.delete(1)),
-                () -> assertEquals(1, tasks.size())
-        );
+        assertThrows(IndexOutOfBoundsException.class, () -> tasks.delete(-1));
+        assertThrows(IndexOutOfBoundsException.class, () -> tasks.delete(1));
+        assertEquals(1, tasks.size());
     }
 
     @Test
@@ -124,10 +107,8 @@ class TaskListTest {
 
         Task markedTask = tasks.mark(0);
 
-        assertAll(
-                () -> assertSame(task, markedTask),
-                () -> assertTrue(task.isDone())
-        );
+        assertSame(task, markedTask);
+        assertTrue(task.isDone());
     }
 
     @Test
@@ -138,20 +119,16 @@ class TaskListTest {
 
         Task unmarkedTask = tasks.unmark(0);
 
-        assertAll(
-                () -> assertSame(task, unmarkedTask),
-                () -> assertFalse(task.isDone())
-        );
+        assertSame(task, unmarkedTask);
+        assertFalse(task.isDone());
     }
 
     @Test
     void markAndUnmark_invalidIndexes_throwException() {
         TaskList tasks = new TaskList();
 
-        assertAll(
-                () -> assertThrows(IndexOutOfBoundsException.class, () -> tasks.mark(0)),
-                () -> assertThrows(IndexOutOfBoundsException.class, () -> tasks.unmark(0))
-        );
+        assertThrows(IndexOutOfBoundsException.class, () -> tasks.mark(0));
+        assertThrows(IndexOutOfBoundsException.class, () -> tasks.unmark(0));
     }
 
     @Test
@@ -163,12 +140,10 @@ class TaskListTest {
 
         List<Task> matchingTasks = tasks.find("book");
 
-        assertAll(
-                () -> assertEquals(2, matchingTasks.size()),
-                () -> assertSame(firstMatch, matchingTasks.get(0)),
-                () -> assertSame(secondMatch, matchingTasks.get(1)),
-                () -> assertEquals(3, tasks.size())
-        );
+        assertEquals(2, matchingTasks.size());
+        assertSame(firstMatch, matchingTasks.get(0));
+        assertSame(secondMatch, matchingTasks.get(1));
+        assertEquals(3, tasks.size());
     }
 
     @Test

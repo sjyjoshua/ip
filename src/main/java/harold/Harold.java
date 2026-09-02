@@ -161,6 +161,7 @@ public class Harold {
                         throw new HaroldException(
                                 "I don't know what '" + command + "' means. "
                                         + "Try todo, deadline, event, list, find, mark, unmark, delete, or bye.");
+                    default -> throw new AssertionError("Unhandled command type: " + commandType);
                 }
             } catch (HaroldException e) {
                 ui.showError(e.getMessage());

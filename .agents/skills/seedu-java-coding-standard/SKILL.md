@@ -56,6 +56,7 @@ Run these checks after Java changes:
 ```bash
 rg -n $'\t' src/main/java src/test/java
 rg -n '.{121}' src/main/java src/test/java
+./gradlew checkstyleMain checkstyleTest
 ./gradlew test
 ```
 

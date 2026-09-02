@@ -1,6 +1,5 @@
 package harold.storage;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -32,10 +31,8 @@ class StorageTest {
 
         Storage.LoadResult result = storage.load();
 
-        assertAll(
-                () -> assertTrue(result.tasks().isEmpty()),
-                () -> assertEquals(0, result.skippedLineCount())
-        );
+        assertTrue(result.tasks().isEmpty());
+        assertEquals(0, result.skippedLineCount());
     }
 
     @Test
@@ -70,11 +67,9 @@ class StorageTest {
 
         Storage.LoadResult result = storage.load();
 
-        assertAll(
-                () -> assertEquals(1, result.tasks().size()),
-                () -> assertEquals("valid task", result.tasks().get(0).getDescription()),
-                () -> assertEquals(1, result.skippedLineCount())
-        );
+        assertEquals(1, result.tasks().size());
+        assertEquals("valid task", result.tasks().get(0).getDescription());
+        assertEquals(1, result.skippedLineCount());
     }
 
     @Test
@@ -87,10 +82,8 @@ class StorageTest {
         storage.save(new TaskList());
         Storage.LoadResult result = storage.load();
 
-        assertAll(
-                () -> assertTrue(result.tasks().isEmpty()),
-                () -> assertEquals(0, result.skippedLineCount())
-        );
+        assertTrue(result.tasks().isEmpty());
+        assertEquals(0, result.skippedLineCount());
     }
 
     private static TaskList createTaskList() throws HaroldException {
@@ -109,28 +102,22 @@ class StorageTest {
 
     private static void assertTodo(Task task) {
         Todo todo = assertInstanceOf(Todo.class, task);
-        assertAll(
-                () -> assertEquals("read book", todo.getDescription()),
-                () -> assertTrue(todo.isDone())
-        );
+        assertEquals("read book", todo.getDescription());
+        assertTrue(todo.isDone());
     }
 
     private static void assertDeadline(Task task) {
         Deadline deadline = assertInstanceOf(Deadline.class, task);
-        assertAll(
-                () -> assertEquals("return book", deadline.getDescription()),
-                () -> assertEquals(LocalDate.of(2026, 9, 1), deadline.getBy()),
-                () -> assertFalse(deadline.isDone())
-        );
+        assertEquals("return book", deadline.getDescription());
+        assertEquals(LocalDate.of(2026, 9, 1), deadline.getBy());
+        assertFalse(deadline.isDone());
     }
 
     private static void assertEvent(Task task) {
         Event event = assertInstanceOf(Event.class, task);
-        assertAll(
-                () -> assertEquals("project meeting", event.getDescription()),
-                () -> assertEquals(LocalDate.of(2026, 9, 2), event.getFrom()),
-                () -> assertEquals(LocalDate.of(2026, 9, 3), event.getTo()),
-                () -> assertFalse(event.isDone())
-        );
+        assertEquals("project meeting", event.getDescription());
+        assertEquals(LocalDate.of(2026, 9, 2), event.getFrom());
+        assertEquals(LocalDate.of(2026, 9, 3), event.getTo());
+        assertFalse(event.isDone());
     }
 }

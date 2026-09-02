@@ -1,6 +1,5 @@
 package harold.task;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -22,17 +21,9 @@ class TaskDateTest {
 
     @Test
     void parse_invalidDates_throwException() {
-        assertAll(
-                () -> assertThrows(
-                        DateTimeParseException.class,
-                        () -> TaskDate.parse("2023-02-29")
-                ),
-                () -> assertThrows(
-                        DateTimeParseException.class,
-                        () -> TaskDate.parse("30-08-2026")
-                ),
-                () -> assertThrows(DateTimeParseException.class, () -> TaskDate.parse(""))
-        );
+        assertThrows(DateTimeParseException.class, () -> TaskDate.parse("2023-02-29"));
+        assertThrows(DateTimeParseException.class, () -> TaskDate.parse("30-08-2026"));
+        assertThrows(DateTimeParseException.class, () -> TaskDate.parse(""));
     }
 
     @Test

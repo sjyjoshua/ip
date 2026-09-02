@@ -38,3 +38,15 @@ On Windows, use `gradlew.bat shadowJar` instead. The fat JAR is created at
 ```shell
 java -jar build/libs/harold.jar
 ```
+
+## Checking code style
+
+Run Checkstyle against both production and test Java sources:
+
+```shell
+./gradlew checkstyleMain checkstyleTest
+```
+
+The broader `./gradlew check` task also runs Checkstyle together with the
+project's other verification tasks. Checkstyle uses the SE-EDU rules in
+`config/checkstyle/checkstyle.xml`.
