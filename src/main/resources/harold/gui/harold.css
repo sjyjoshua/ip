@@ -1,21 +1,21 @@
 .root {
-    -fx-font-family: "Avenir Next", "Helvetica Neue", sans-serif;
+    -fx-font-family: "JetBrains Mono";
     -fx-font-size: 14px;
 }
 
 .app-shell {
-    -fx-background-color: #f8f1e7;
+    -fx-background-color: #1b0e14;
 }
 
 .app-header {
-    -fx-background-color: linear-gradient(to right, #292622, #413b35);
-    -fx-border-color: transparent transparent #d5a05a transparent;
+    -fx-background-color: linear-gradient(to right, #12080d, #32131f);
+    -fx-border-color: transparent transparent #ff4fa3 transparent;
     -fx-border-width: 0 0 4 0;
 }
 
 .paw-badge {
     -fx-alignment: center;
-    -fx-background-color: #d5a05a;
+    -fx-background-color: #ff4fa3;
     -fx-background-radius: 24px;
     -fx-font-size: 25px;
     -fx-min-height: 48px;
@@ -25,19 +25,19 @@
 .app-title {
     -fx-font-size: 25px;
     -fx-font-weight: 800;
-    -fx-text-fill: #fffaf2;
+    -fx-text-fill: #ff65b2;
 }
 
 .app-subtitle {
     -fx-font-size: 10px;
     -fx-font-weight: 700;
-    -fx-text-fill: #d9cdbf;
+    -fx-text-fill: #d98ab2;
 }
 
 .conversation-scroll,
 .conversation-scroll > .viewport,
 .conversation {
-    -fx-background-color: #f8f1e7;
+    -fx-background-color: #1b0e14;
 }
 
 .conversation-scroll {
@@ -55,14 +55,16 @@
 }
 
 .harold-avatar {
-    -fx-background-color: #292622;
+    -fx-background-color: #ff4fa3;
     -fx-font-size: 21px;
 }
 
 .user-avatar {
-    -fx-background-color: #c87964;
+    -fx-background-color: #4b1a31;
+    -fx-border-color: #ff4fa3;
+    -fx-border-radius: 22px;
     -fx-font-size: 9px;
-    -fx-text-fill: white;
+    -fx-text-fill: #ff8fc6;
 }
 
 .harold-bubble,
@@ -73,52 +75,64 @@
 }
 
 .harold-bubble {
-    -fx-background-color: #fffdf9;
-    -fx-border-color: #e7d9c8;
+    -fx-background-color: #2d1721;
+    -fx-border-color: #71304f;
     -fx-border-radius: 18px;
-    -fx-text-fill: #332f2b;
+    -fx-text-fill: #ff82c1;
 }
 
 .user-bubble {
-    -fx-background-color: #c87964;
-    -fx-text-fill: white;
+    -fx-background-color: #4b1a31;
+    -fx-border-color: #ff4fa3;
+    -fx-border-radius: 18px;
+    -fx-text-fill: #ffb1d7;
 }
 
 .command-bar {
-    -fx-background-color: #eee2d3;
-    -fx-border-color: #ded0bf transparent transparent transparent;
+    -fx-background-color: #140a0f;
+    -fx-border-color: #5e2441 transparent transparent transparent;
     -fx-border-width: 1 0 0 0;
 }
 
 .command-input {
-    -fx-background-color: #fffdf9;
+    -fx-background-color: #28131d;
     -fx-background-radius: 12px;
-    -fx-border-color: #d2c0aa;
+    -fx-border-color: #71304f;
     -fx-border-radius: 12px;
     -fx-border-width: 1px;
     -fx-padding: 12px 14px;
-    -fx-prompt-text-fill: #978879;
+    -fx-prompt-text-fill: #a96c8a;
+    -fx-text-fill: #ff82c1;
 }
 
 .command-input:focused {
-    -fx-border-color: #c87964;
-    -fx-effect: dropshadow(gaussian, rgba(200, 121, 100, 0.18), 8, 0, 0, 1);
+    -fx-border-color: #ff4fa3;
+    -fx-effect: dropshadow(gaussian, rgba(255, 79, 163, 0.3), 10, 0, 0, 1);
 }
 
 .send-button {
-    -fx-background-color: #292622;
+    -fx-background-color: #ff4fa3;
     -fx-background-radius: 12px;
     -fx-cursor: hand;
     -fx-font-weight: 800;
     -fx-padding: 12px 18px;
-    -fx-text-fill: #fffaf2;
+    -fx-text-fill: #210e17;
 }
 
 .send-button:hover {
-    -fx-background-color: #c87964;
+    -fx-background-color: #ff82c1;
 }
 
 .send-button:disabled,
 .command-input:disabled {
     -fx-opacity: 0.55;
+}
+
+.scroll-bar:vertical {
+    -fx-background-color: #1b0e14;
+}
+
+.scroll-bar:vertical .thumb {
+    -fx-background-color: #71304f;
+    -fx-background-radius: 8px;
 }
