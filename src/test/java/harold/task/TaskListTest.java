@@ -155,6 +155,53 @@ class TaskListTest {
         assertTrue(matchingTasks.isEmpty());
     }
 
+    @Test
+    void findSimilar_misspelledKeyword_returnsClosestTasksFirst() {
+        Todo closestMatch = new Todo("return book");
+        Todo secondMatch = new Todo("book a room");
+        Todo unrelatedTask = new Todo("buy groceries");
+        TaskList tasks = new TaskList(List.of(secondMatch, unrelatedTask, closestMatch));
+
+        List<Task> similarTasks = tasks.findSimilar("return bok", 3);
+
+        assertEquals(2, similarTasks.size());
+        assertSame(closestMatch, similarTasks.get(0));
+        assertSame(secondMatch, similarTasks.get(1));
+    }
+
+    @Test
+    void findSimilar_differentCapitalization_matchesIgnoringCase() {
+        Todo matchingTask = new Todo("read book");
+        TaskList tasks = new TaskList(List.of(matchingTask));
+
+        List<Task> similarTasks = tasks.findSimilar("BOOOK", 3);
+
+        assertEquals(1, similarTasks.size());
+        assertSame(matchingTask, similarTasks.get(0));
+    }
+
+    @Test
+    void findSimilar_unrelatedKeyword_returnsEmptyList() {
+        TaskList tasks = new TaskList(List.of(new Todo("read book")));
+
+        List<Task> similarTasks = tasks.findSimilar("magazine", 3);
+
+        assertTrue(similarTasks.isEmpty());
+    }
+
+    @Test
+    void findSimilar_moreMatchesThanLimit_returnsOnlyRequestedCount() {
+        TaskList tasks = new TaskList(List.of(
+                new Todo("read book"),
+                new Todo("return book"),
+                new Todo("book a room")
+        ));
+
+        List<Task> similarTasks = tasks.findSimilar("boook", 2);
+
+        assertEquals(2, similarTasks.size());
+    }
+
     private static List<Task> createTasks(int taskCount) {
         List<Task> tasks = new ArrayList<>();
         for (int i = 0; i < taskCount; i++) {

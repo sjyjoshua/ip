@@ -418,6 +418,7 @@ todo read book
 deadline return book /by 2026-09-01
 todo buy groceries
 find book
+find bok
 find magazine
 find
 bye
@@ -460,16 +461,24 @@ Here are the matching tasks in your list:
 #### Output 5
 
 ```text
-Here are the matching tasks in your list:
+I couldn't find an exact match. Here are the most similar tasks:
+1.[T][ ] read book
+2.[D][ ] return book (by: Sep 1 2026)
 ```
 
 #### Output 6
 
 ```text
-OOPS!!! Please enter a keyword after find. Try: find <keyword>
+I couldn't find any tasks matching 'magazine'.
 ```
 
 #### Output 7
+
+```text
+OOPS!!! Please enter a keyword after find. Try: find <keyword>
+```
+
+#### Output 8
 
 ```text
 Goodbye! Please take me down soon hehe!

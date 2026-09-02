@@ -21,6 +21,7 @@ import harold.ui.Ui;
  */
 public class Harold {
     private static final Path DEFAULT_FILE_PATH = Path.of("data", "harold.txt");
+    private static final int MAX_SIMILAR_MATCHES = 3;
 
     private final Storage storage;
     private final TaskList tasks;
@@ -245,8 +246,22 @@ public class Harold {
         if (keyword.isEmpty()) {
             throw new HaroldException("Please enter a keyword after find. Try: find <keyword>");
         }
+
+        List<Task> exactMatches = tasks.find(keyword);
+        if (!exactMatches.isEmpty()) {
+            return CommandResult.continueWith(
+                    formatTasks("Here are the matching tasks in your list:", exactMatches));
+        }
+
+        List<Task> similarMatches = tasks.findSimilar(keyword, MAX_SIMILAR_MATCHES);
+        if (!similarMatches.isEmpty()) {
+            return CommandResult.continueWith(
+                    formatTasks(
+                            "I couldn't find an exact match. Here are the most similar tasks:",
+                            similarMatches));
+        }
         return CommandResult.continueWith(
-                formatTasks("Here are the matching tasks in your list:", tasks.find(keyword)));
+                "I couldn't find any tasks matching '" + keyword + "'.");
     }
 
     /**
