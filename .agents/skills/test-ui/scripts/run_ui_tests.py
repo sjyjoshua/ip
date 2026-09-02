@@ -98,7 +98,12 @@ def main() -> int:
         print(f"TEST PLAN ERROR: {error}", file=sys.stderr)
         return 2
 
-    sources = sorted((PROJECT_ROOT / "src" / "main" / "java").rglob("*.java"))
+    source_root = PROJECT_ROOT / "src" / "main" / "java"
+    sources = sorted(
+        source
+        for source in source_root.rglob("*.java")
+        if "gui" not in source.relative_to(source_root).parts
+    )
     if not sources:
         print("COMPILE ERROR: No Java source files found.", file=sys.stderr)
         return 2

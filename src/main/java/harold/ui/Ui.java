@@ -1,10 +1,6 @@
 package harold.ui;
 
-import java.util.List;
 import java.util.Scanner;
-
-import harold.task.Task;
-import harold.task.TaskList;
 
 /**
  * Handles console input and output for Harold.
@@ -50,7 +46,7 @@ public class Ui {
         System.out.println("Arf Arf, I mean WOOF WOOF! I'm Harold.");
         System.out.println("What can I do for you, besides eat my poopoo?");
         if (loadMessage != null) {
-            showError(loadMessage);
+            System.out.println("OOPS!!! " + loadMessage);
         }
         System.out.println(SEPARATOR);
     }
@@ -81,97 +77,11 @@ public class Ui {
     }
 
     /**
-     * Displays Harold's goodbye message and a closing separator.
-     */
-    public void showGoodbye() {
-        System.out.println("Goodbye! Please take me down soon hehe!");
-        showSeparator();
-    }
-
-    /**
-     * Displays all tasks in their current order.
+     * Displays one potentially multi-line chatbot response.
      *
-     * @param tasks Tasks to display.
+     * @param message Message to display.
      */
-    public void showTaskList(TaskList tasks) {
-        System.out.println("Here are the tasks in your list:");
-        for (int i = 0; i < tasks.size(); i++) {
-            System.out.printf("%d.%s%n", i + 1, tasks.get(i));
-        }
-    }
-
-    /**
-     * Displays tasks matching a search keyword in their original order.
-     *
-     * @param matchingTasks Tasks whose descriptions contain the keyword.
-     */
-    public void showMatchingTasks(List<Task> matchingTasks) {
-        System.out.println("Here are the matching tasks in your list:");
-        for (int i = 0; i < matchingTasks.size(); i++) {
-            System.out.printf("%d.%s%n", i + 1, matchingTasks.get(i));
-        }
-    }
-
-    /**
-     * Displays confirmation that a task was marked complete.
-     *
-     * @param task Task that was marked.
-     */
-    public void showTaskMarked(Task task) {
-        System.out.println("Nice! I've marked this task as done:");
-        System.out.printf("  %s%n", task);
-    }
-
-    /**
-     * Displays confirmation that a task was marked incomplete.
-     *
-     * @param task Task that was unmarked.
-     */
-    public void showTaskUnmarked(Task task) {
-        System.out.println("OK, I've marked this task as not done yet:");
-        System.out.printf("  %s%n", task);
-    }
-
-    /**
-     * Displays confirmation that a task was added and the new task count.
-     *
-     * @param task Task that was added.
-     * @param taskCount Number of tasks after the addition.
-     */
-    public void showTaskAdded(Task task, int taskCount) {
-        System.out.println("Got it. I've added this task:");
-        System.out.printf("  %s%n", task);
-        showTaskCount(taskCount);
-    }
-
-    /**
-     * Displays confirmation that a task was deleted and the new task count.
-     *
-     * @param task Task that was deleted.
-     * @param taskCount Number of tasks after the deletion.
-     */
-    public void showTaskDeleted(Task task, int taskCount) {
-        System.out.println("DELETED. I've removed this task:");
-        System.out.printf("  %s%n", task);
-        showTaskCount(taskCount);
-    }
-
-    /**
-     * Displays an error message using Harold's error prefix.
-     *
-     * @param message Error message to display.
-     */
-    public void showError(String message) {
-        System.out.println("OOPS!!! " + message);
-    }
-
-    /**
-     * Displays the current task count using the correct singular or plural noun.
-     *
-     * @param taskCount Number of tasks currently stored.
-     */
-    private static void showTaskCount(int taskCount) {
-        String taskWord = taskCount == 1 ? "task" : "tasks";
-        System.out.printf("Now you have %d %s in the list.%n", taskCount, taskWord);
+    public void showMessage(String message) {
+        System.out.println(message);
     }
 }

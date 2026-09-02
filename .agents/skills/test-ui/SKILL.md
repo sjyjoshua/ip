@@ -15,7 +15,12 @@ Use [`test/ui-test-plan.md`](../../../test/ui-test-plan.md) as the source of tru
 4. Show the runner's console-session record to the user.
 5. Stop immediately on the first failing command. Report its test case and command, followed by the actual and expected outputs. Do not run later cases after a failure.
 
-The runner compiles all Java sources into a temporary directory, starts a fresh Harold process for each test case, sends that case's commands in order, and compares each command response exactly after normalizing line endings and outer blank lines. It excludes the startup banner and separator lines from comparisons.
+The runner compiles the CLI and shared Java sources into a temporary directory,
+excluding JavaFX-only GUI classes whose dependencies are managed by Gradle. It
+starts a fresh Harold process for each test case, sends that case's commands in
+order, and compares each command response exactly after normalizing line endings
+and outer blank lines. It excludes the startup banner and separator lines from
+comparisons.
 
 ## Test-plan format
 

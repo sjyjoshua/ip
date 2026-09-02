@@ -9,7 +9,12 @@ from pathlib import Path
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-SOURCES = sorted((PROJECT_ROOT / "src" / "main" / "java").rglob("*.java"))
+SOURCE_ROOT = PROJECT_ROOT / "src" / "main" / "java"
+SOURCES = sorted(
+    source
+    for source in SOURCE_ROOT.rglob("*.java")
+    if "gui" not in source.relative_to(SOURCE_ROOT).parts
+)
 
 
 def run_harold(build_directory: Path, working_directory: Path, commands: list[str]) -> str:
