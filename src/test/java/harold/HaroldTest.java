@@ -104,6 +104,101 @@ class HaroldTest {
     }
 
     @Test
+    void respond_overlappingTimedEvent_addsTaskAndReportsClash() {
+        Harold harold = createHarold();
+        harold.respond("event lunch /from 2026-09-10 1200 /to 2026-09-10 1330");
+
+        CommandResult result = harold.respond(
+                "event meeting /from 2026-09-10 1300 /to 2026-09-10 1400"
+        );
+
+        assertEquals(
+                "Got it. I've added this task:\n"
+                        + "  [E][ ] meeting (from: Sep 10 2026, 1:00 PM "
+                        + "to: Sep 10 2026, 2:00 PM)\n"
+                        + "Now you have 2 tasks in the list.\n\n"
+                        + "Heads up! This event clashes with:\n"
+                        + "1.[E][ ] lunch (from: Sep 10 2026, 12:00 PM "
+                        + "to: Sep 10 2026, 1:30 PM)",
+                result.message()
+        );
+    }
+
+    @Test
+    void respond_dateOnlyEventsShareDate_addsTaskAndSuggestsTimes() {
+        Harold harold = createHarold();
+        harold.respond("event conference /from 2026-09-10 /to 2026-09-11");
+
+        CommandResult result = harold.respond(
+                "event workshop /from 2026-09-11 /to 2026-09-11"
+        );
+
+        assertEquals(
+                "Got it. I've added this task:\n"
+                        + "  [E][ ] workshop (from: Sep 11 2026 to: Sep 11 2026)\n"
+                        + "Now you have 2 tasks in the list.\n\n"
+                        + "Heads up! These events share a date, but at least one has no time:\n"
+                        + "1.[E][ ] conference (from: Sep 10 2026 to: Sep 11 2026)\n"
+                        + "Add times using yyyy-MM-dd HHmm if you want Harold to check "
+                        + "for a precise clash.",
+                result.message()
+        );
+    }
+
+    @Test
+    void respond_mixedEventPrecision_returnsValidationError() {
+        CommandResult result = createHarold().respond(
+                "event meeting /from 2026-09-10 1300 /to 2026-09-10"
+        );
+
+        assertEquals(
+                "OOPS!!! Use times for both /from and /to, or omit times from both.",
+                result.message()
+        );
+    }
+
+    @Test
+    void respond_invalidEventRanges_returnSpecificErrors() {
+        Harold harold = createHarold();
+
+        CommandResult backwardsDate = harold.respond(
+                "event holiday /from 2026-09-11 /to 2026-09-10"
+        );
+        CommandResult zeroDuration = harold.respond(
+                "event meeting /from 2026-09-10 1300 /to 2026-09-10 1300"
+        );
+
+        assertEquals(
+                "OOPS!!! The event end date cannot be before its start date.",
+                backwardsDate.message()
+        );
+        assertEquals(
+                "OOPS!!! The event end date and time must be after its start date and time.",
+                zeroDuration.message()
+        );
+    }
+
+    @Test
+    void respond_multipleTimedClashes_reportsOriginalTaskNumbersInOrder() {
+        Harold harold = createHarold();
+        harold.respond("event first /from 2026-09-10 1200 /to 2026-09-10 1400");
+        harold.respond("todo unrelated");
+        harold.respond("event second /from 2026-09-10 1300 /to 2026-09-10 1500");
+
+        CommandResult result = harold.respond(
+                "event candidate /from 2026-09-10 1330 /to 2026-09-10 1430"
+        );
+
+        assertTrue(result.message().contains(
+                "Heads up! This event clashes with:\n"
+                        + "1.[E][ ] first (from: Sep 10 2026, 12:00 PM "
+                        + "to: Sep 10 2026, 2:00 PM)\n"
+                        + "3.[E][ ] second (from: Sep 10 2026, 1:00 PM "
+                        + "to: Sep 10 2026, 3:00 PM)"
+        ));
+    }
+
+    @Test
     void respond_bye_returnsExitResult() {
         CommandResult result = createHarold().respond("bye");
 

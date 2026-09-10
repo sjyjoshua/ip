@@ -392,13 +392,13 @@ Now you have 2 tasks in the list.
 #### Output 5
 
 ```text
-OOPS!!! Please enter the date after /from as yyyy-MM-dd, for example 2019-10-15.
+OOPS!!! Please enter the date after /from as yyyy-MM-dd or yyyy-MM-dd HHmm, for example 2019-10-15 1800.
 ```
 
 #### Output 6
 
 ```text
-OOPS!!! Please enter the date after /to as yyyy-MM-dd, for example 2019-10-15.
+OOPS!!! Please enter the date after /to as yyyy-MM-dd or yyyy-MM-dd HHmm, for example 2019-10-15 1800.
 ```
 
 #### Output 7
@@ -479,6 +479,117 @@ OOPS!!! Please enter a keyword after find. Try: find <keyword>
 ```
 
 #### Output 8
+
+```text
+Goodbye! Please take me down soon hehe!
+```
+
+## TC07: Detect timed event clashes and date-only uncertainty
+
+**Aim:** Verify precise clash warnings, boundary handling, and advisories for events without times.
+
+### Inputs
+
+```text
+event lunch /from 2026-09-10 1200 /to 2026-09-10 1330
+event meeting /from 2026-09-10 1300 /to 2026-09-10 1400
+event study /from 2026-09-10 1400 /to 2026-09-10 1500
+event conference /from 2026-09-10 /to 2026-09-10
+bye
+```
+
+### Expected outputs
+
+#### Output 1
+
+```text
+Got it. I've added this task:
+  [E][ ] lunch (from: Sep 10 2026, 12:00 PM to: Sep 10 2026, 1:30 PM)
+Now you have 1 task in the list.
+```
+
+#### Output 2
+
+```text
+Got it. I've added this task:
+  [E][ ] meeting (from: Sep 10 2026, 1:00 PM to: Sep 10 2026, 2:00 PM)
+Now you have 2 tasks in the list.
+
+Heads up! This event clashes with:
+1.[E][ ] lunch (from: Sep 10 2026, 12:00 PM to: Sep 10 2026, 1:30 PM)
+```
+
+#### Output 3
+
+```text
+Got it. I've added this task:
+  [E][ ] study (from: Sep 10 2026, 2:00 PM to: Sep 10 2026, 3:00 PM)
+Now you have 3 tasks in the list.
+```
+
+#### Output 4
+
+```text
+Got it. I've added this task:
+  [E][ ] conference (from: Sep 10 2026 to: Sep 10 2026)
+Now you have 4 tasks in the list.
+
+Heads up! These events share a date, but at least one has no time:
+1.[E][ ] lunch (from: Sep 10 2026, 12:00 PM to: Sep 10 2026, 1:30 PM)
+2.[E][ ] meeting (from: Sep 10 2026, 1:00 PM to: Sep 10 2026, 2:00 PM)
+3.[E][ ] study (from: Sep 10 2026, 2:00 PM to: Sep 10 2026, 3:00 PM)
+Add times using yyyy-MM-dd HHmm if you want Harold to check for a precise clash.
+```
+
+#### Output 5
+
+```text
+Goodbye! Please take me down soon hehe!
+```
+
+## TC08: Validate event precision and ranges
+
+**Aim:** Verify mixed precision, backwards ranges, zero duration, and cross-midnight events.
+
+### Inputs
+
+```text
+event mixed /from 2026-09-10 1200 /to 2026-09-10
+event backwards /from 2026-09-11 /to 2026-09-10
+event instant /from 2026-09-10 1300 /to 2026-09-10 1300
+event overnight /from 2026-09-10 2300 /to 2026-09-11 0100
+bye
+```
+
+### Expected outputs
+
+#### Output 1
+
+```text
+OOPS!!! Use times for both /from and /to, or omit times from both.
+```
+
+#### Output 2
+
+```text
+OOPS!!! The event end date cannot be before its start date.
+```
+
+#### Output 3
+
+```text
+OOPS!!! The event end date and time must be after its start date and time.
+```
+
+#### Output 4
+
+```text
+Got it. I've added this task:
+  [E][ ] overnight (from: Sep 10 2026, 11:00 PM to: Sep 11 2026, 1:00 AM)
+Now you have 1 task in the list.
+```
+
+#### Output 5
 
 ```text
 Goodbye! Please take me down soon hehe!

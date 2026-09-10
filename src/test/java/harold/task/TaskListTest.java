@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -202,11 +204,69 @@ class TaskListTest {
         assertEquals(2, similarTasks.size());
     }
 
+    @Test
+    void findClashingEventIndexes_mixedTasks_returnsIncompleteTimedClashes() {
+        Event clashingEvent = timedEvent("clashing", 12, 0, 13, 30);
+        Event completedClash = timedEvent("completed", 12, 30, 13, 30);
+        completedClash.markAsDone();
+        Event touchingEvent = timedEvent("touching", 14, 0, 15, 0);
+        TaskList tasks = new TaskList(
+                new Todo("todo"),
+                clashingEvent,
+                completedClash,
+                touchingEvent
+        );
+        Event candidate = timedEvent("candidate", 13, 0, 14, 0);
+
+        List<Integer> indexes = tasks.findClashingEventIndexes(candidate);
+
+        assertEquals(List.of(1), indexes);
+    }
+
+    @Test
+    void findPossibleEventClashIndexes_dateOnlyOverlap_returnsOriginalIndexes() {
+        Event firstDateOnly = new Event(
+                "first",
+                LocalDate.of(2026, 9, 9),
+                LocalDate.of(2026, 9, 10)
+        );
+        Event unrelatedDateOnly = new Event(
+                "unrelated",
+                LocalDate.of(2026, 9, 12),
+                LocalDate.of(2026, 9, 12)
+        );
+        Event timed = timedEvent("timed", 15, 0, 16, 0);
+        TaskList tasks = new TaskList(firstDateOnly, unrelatedDateOnly, timed);
+        Event candidate = new Event(
+                "candidate",
+                LocalDate.of(2026, 9, 10),
+                LocalDate.of(2026, 9, 10)
+        );
+
+        List<Integer> indexes = tasks.findPossibleEventClashIndexes(candidate);
+
+        assertEquals(List.of(0, 2), indexes);
+    }
+
     private static List<Task> createTasks(int taskCount) {
         List<Task> tasks = new ArrayList<>();
         for (int i = 0; i < taskCount; i++) {
             tasks.add(new Todo("task " + i));
         }
         return tasks;
+    }
+
+    private static Event timedEvent(
+            String description,
+            int fromHour,
+            int fromMinute,
+            int toHour,
+            int toMinute
+    ) {
+        return new Event(
+                description,
+                LocalDateTime.of(2026, 9, 10, fromHour, fromMinute),
+                LocalDateTime.of(2026, 9, 10, toHour, toMinute)
+        );
     }
 }
