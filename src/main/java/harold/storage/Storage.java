@@ -20,6 +20,22 @@ import harold.task.Todo;
  */
 public class Storage {
     private static final String FIELD_SEPARATOR = "\t";
+    private static final String TODO_TYPE = "T";
+    private static final String DEADLINE_TYPE = "D";
+    private static final String EVENT_TYPE = "E";
+    private static final String DONE_STATUS = "1";
+    private static final String NOT_DONE_STATUS = "0";
+
+    private static final int TYPE_INDEX = 0;
+    private static final int STATUS_INDEX = 1;
+    private static final int DESCRIPTION_INDEX = 2;
+    private static final int DEADLINE_DATE_INDEX = 3;
+    private static final int EVENT_START_DATE_INDEX = 3;
+    private static final int EVENT_END_DATE_INDEX = 4;
+
+    private static final int TODO_FIELD_COUNT = 3;
+    private static final int DEADLINE_FIELD_COUNT = 4;
+    private static final int EVENT_FIELD_COUNT = 5;
 
     private final Path filePath;
 
@@ -84,35 +100,30 @@ public class Storage {
      */
     private static Task parseTask(String line) {
         String[] fields = line.split(FIELD_SEPARATOR, -1);
-        if (fields.length < 3) {
+        if (fields.length < TODO_FIELD_COUNT) {
             throw new IllegalArgumentException("Task record has too few fields");
         }
 
-        boolean isDone;
-        if (fields[1].equals("1")) {
-            isDone = true;
-        } else if (fields[1].equals("0")) {
-            isDone = false;
-        } else {
-            throw new IllegalArgumentException("Task status must be 0 or 1");
-        }
-
-        String description = decode(fields[2]);
-        Task task = switch (fields[0]) {
-            case "T" -> {
-                requireFieldCount(fields, 3);
+        boolean isDone = parseDoneStatus(fields[STATUS_INDEX]);
+        String description = decode(fields[DESCRIPTION_INDEX]);
+        Task task = switch (fields[TYPE_INDEX]) {
+            case TODO_TYPE -> {
+                requireFieldCount(fields, TODO_FIELD_COUNT);
                 yield new Todo(description);
             }
-            case "D" -> {
-                requireFieldCount(fields, 4);
-                yield new Deadline(description, TaskDate.parse(decode(fields[3])));
+            case DEADLINE_TYPE -> {
+                requireFieldCount(fields, DEADLINE_FIELD_COUNT);
+                yield new Deadline(
+                        description,
+                        TaskDate.parse(decode(fields[DEADLINE_DATE_INDEX]))
+                );
             }
-            case "E" -> {
-                requireFieldCount(fields, 5);
+            case EVENT_TYPE -> {
+                requireFieldCount(fields, EVENT_FIELD_COUNT);
                 yield new Event(
                         description,
-                        TaskDate.parse(decode(fields[3])),
-                        TaskDate.parse(decode(fields[4]))
+                        TaskDate.parse(decode(fields[EVENT_START_DATE_INDEX])),
+                        TaskDate.parse(decode(fields[EVENT_END_DATE_INDEX]))
                 );
             }
             default -> throw new IllegalArgumentException("Unknown task type");
@@ -128,13 +139,28 @@ public class Storage {
     }
 
     /**
+     * Converts a persisted status field into its boolean representation.
+     *
+     * @param status Persisted task status.
+     * @return Whether the task is marked as done.
+     * @throws IllegalArgumentException If the status is not recognized.
+     */
+    private static boolean parseDoneStatus(String status) {
+        return switch (status) {
+            case DONE_STATUS -> true;
+            case NOT_DONE_STATUS -> false;
+            default -> throw new IllegalArgumentException("Task status must be 0 or 1");
+        };
+    }
+
+    /**
      * Converts a task into the record format used in the data file.
      *
      * @param task Task to persist.
      * @return Serialized task record.
      */
     private static String formatTask(Task task) {
-        String status = task.isDone() ? "1" : "0";
+        String status = task.isDone() ? DONE_STATUS : NOT_DONE_STATUS;
         String commonFields = task.getTypeIcon() + FIELD_SEPARATOR + status
                 + FIELD_SEPARATOR + encode(task.getDescription());
 
