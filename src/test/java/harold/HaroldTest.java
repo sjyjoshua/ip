@@ -62,6 +62,48 @@ class HaroldTest {
     }
 
     @Test
+    void respond_deadlineWithMalformedByMarker_returnsSyntaxError() {
+        CommandResult result = createHarold().respond(
+                "deadline return book /byTomorrow 2026-09-11"
+        );
+
+        assertEquals(
+                "OOPS!!! A deadline needs '/by <date or time>'. "
+                        + "Try: deadline <description> /by <date or time>",
+                result.message()
+        );
+        assertFalse(result.isExit());
+    }
+
+    @Test
+    void respond_eventWithMalformedFromMarker_returnsSyntaxError() {
+        CommandResult result = createHarold().respond(
+                "event conference /fromTomorrow 2026-09-11 /to 2026-09-12"
+        );
+
+        assertEquals(
+                "OOPS!!! An event needs '/from <start>'. "
+                        + "Try: event <description> /from <start> /to <end>",
+                result.message()
+        );
+        assertFalse(result.isExit());
+    }
+
+    @Test
+    void respond_eventWithMalformedToMarker_returnsSyntaxError() {
+        CommandResult result = createHarold().respond(
+                "event conference /from 2026-09-11 /toTomorrow 2026-09-12"
+        );
+
+        assertEquals(
+                "OOPS!!! An event needs '/to <end>'. "
+                        + "Try: event <description> /from <start> /to <end>",
+                result.message()
+        );
+        assertFalse(result.isExit());
+    }
+
+    @Test
     void respond_bye_returnsExitResult() {
         CommandResult result = createHarold().respond("bye");
 

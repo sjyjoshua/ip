@@ -23,6 +23,14 @@ public class Harold {
     private static final Path DEFAULT_FILE_PATH = Path.of("data", "harold.txt");
     private static final int MAX_SIMILAR_MATCHES = 3;
 
+    private static final String TODO_COMMAND = "todo";
+    private static final String DEADLINE_COMMAND = "deadline";
+    private static final String EVENT_COMMAND = "event";
+    private static final String FIND_COMMAND = "find";
+    private static final String BY_MARKER = " /by";
+    private static final String FROM_MARKER = " /from";
+    private static final String TO_MARKER = " /to";
+
     private final Storage storage;
     private final TaskList tasks;
     private final String loadMessage;
@@ -180,8 +188,8 @@ public class Harold {
      * Creates and stores a todo task.
      */
     private CommandResult executeTodo(String command) throws HaroldException, IOException {
-        String description = command.length() > 4 ? command.substring(5).trim() : "";
-        requireDescription(description, "todo");
+        String description = command.substring(TODO_COMMAND.length()).trim();
+        requireDescription(description, TODO_COMMAND);
         return addTask(new Todo(description));
     }
 
@@ -189,19 +197,15 @@ public class Harold {
      * Creates and stores a deadline task.
      */
     private CommandResult executeDeadline(String command) throws HaroldException, IOException {
-        int byIndex = command.indexOf(" /by");
-        if (byIndex < 0 || byIndex + 4 < command.length()
-                && !Character.isWhitespace(command.charAt(byIndex + 4))) {
-            throw new HaroldException(
-                    "A deadline needs '/by <date or time>'. "
-                            + "Try: deadline <description> /by <date or time>");
-        }
+        String syntaxError = "A deadline needs '/by <date or time>'. "
+                + "Try: deadline <description> /by <date or time>";
+        int byIndex = findMarker(command, BY_MARKER, 0, syntaxError);
         assert byIndex >= 0
                 : "A validated deadline command must contain a /by delimiter";
 
-        String description = byIndex < 9 ? "" : command.substring(9, byIndex).trim();
-        String byText = command.substring(byIndex + 4).trim();
-        requireDescription(description, "deadline");
+        String description = command.substring(DEADLINE_COMMAND.length(), byIndex).trim();
+        String byText = command.substring(byIndex + BY_MARKER.length()).trim();
+        requireDescription(description, DEADLINE_COMMAND);
         if (byText.isEmpty()) {
             throw new HaroldException("Please enter a date after /by.");
         }
@@ -213,29 +217,26 @@ public class Harold {
      * Creates and stores an event task.
      */
     private CommandResult executeEvent(String command) throws HaroldException, IOException {
-        int fromIndex = command.indexOf(" /from");
-        if (fromIndex < 0 || fromIndex + 6 < command.length()
-                && !Character.isWhitespace(command.charAt(fromIndex + 6))) {
-            throw new HaroldException(
-                    "An event needs '/from <start>'. "
-                            + "Try: event <description> /from <start> /to <end>");
-        }
-        int toIndex = command.indexOf(" /to", fromIndex + 6);
-        if (toIndex < 0 || toIndex + 4 < command.length()
-                && !Character.isWhitespace(command.charAt(toIndex + 4))) {
-            throw new HaroldException(
-                    "An event needs '/to <end>'. "
-                            + "Try: event <description> /from <start> /to <end>");
-        }
+        String fromSyntaxError = "An event needs '/from <start>'. "
+                + "Try: event <description> /from <start> /to <end>";
+        int fromIndex = findMarker(command, FROM_MARKER, 0, fromSyntaxError);
+        String toSyntaxError = "An event needs '/to <end>'. "
+                + "Try: event <description> /from <start> /to <end>";
+        int toIndex = findMarker(
+                command,
+                TO_MARKER,
+                fromIndex + FROM_MARKER.length(),
+                toSyntaxError
+        );
         assert fromIndex >= 0
                 : "A validated event command must contain a /from delimiter";
         assert toIndex > fromIndex
                 : "A validated event command must place /to after /from";
 
-        String description = fromIndex < 6 ? "" : command.substring(6, fromIndex).trim();
-        String fromText = command.substring(fromIndex + 6, toIndex).trim();
-        String toText = command.substring(toIndex + 4).trim();
-        requireDescription(description, "event");
+        String description = command.substring(EVENT_COMMAND.length(), fromIndex).trim();
+        String fromText = command.substring(fromIndex + FROM_MARKER.length(), toIndex).trim();
+        String toText = command.substring(toIndex + TO_MARKER.length()).trim();
+        requireDescription(description, EVENT_COMMAND);
         if (fromText.isEmpty()) {
             throw new HaroldException("Please enter a start date after /from.");
         } else if (toText.isEmpty()) {
@@ -250,7 +251,7 @@ public class Harold {
      * Finds tasks whose descriptions contain the requested keyword.
      */
     private CommandResult executeFind(String command) throws HaroldException {
-        String keyword = command.length() > 4 ? command.substring(5).trim() : "";
+        String keyword = command.substring(FIND_COMMAND.length()).trim();
         if (keyword.isEmpty()) {
             throw new HaroldException("Please enter a keyword after find. Try: find <keyword>");
         }
@@ -357,6 +358,30 @@ public class Harold {
         assert taskIndex >= 0 && taskIndex < taskCount
                 : "A validated task number must map to an existing zero-based index";
         return taskIndex;
+    }
+
+    /**
+     * Finds a command marker and verifies that it is followed by whitespace or the command end.
+     */
+    private static int findMarker(
+            String command,
+            String marker,
+            int startIndex,
+            String errorMessage
+    ) throws HaroldException {
+        int markerIndex = command.indexOf(marker, startIndex);
+        if (markerIndex < 0) {
+            throw new HaroldException(errorMessage);
+        }
+
+        int markerEndIndex = markerIndex + marker.length();
+        boolean isAtCommandEnd = markerEndIndex == command.length();
+        boolean isFollowedByWhitespace = !isAtCommandEnd
+                && Character.isWhitespace(command.charAt(markerEndIndex));
+        if (!isAtCommandEnd && !isFollowedByWhitespace) {
+            throw new HaroldException(errorMessage);
+        }
+        return markerIndex;
     }
 
     /**
