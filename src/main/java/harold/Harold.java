@@ -200,6 +200,9 @@ public class Harold {
         String syntaxError = "A deadline needs '/by <date or time>'. "
                 + "Try: deadline <description> /by <date or time>";
         int byIndex = findMarker(command, BY_MARKER, 0, syntaxError);
+        assert byIndex >= 0
+                : "A validated deadline command must contain a /by delimiter";
+
         String description = command.substring(DEADLINE_COMMAND.length(), byIndex).trim();
         String byText = command.substring(byIndex + BY_MARKER.length()).trim();
         requireDescription(description, DEADLINE_COMMAND);
@@ -225,6 +228,11 @@ public class Harold {
                 fromIndex + FROM_MARKER.length(),
                 toSyntaxError
         );
+        assert fromIndex >= 0
+                : "A validated event command must contain a /from delimiter";
+        assert toIndex > fromIndex
+                : "A validated event command must place /to after /from";
+
         String description = command.substring(EVENT_COMMAND.length(), fromIndex).trim();
         String fromText = command.substring(fromIndex + FROM_MARKER.length(), toIndex).trim();
         String toText = command.substring(toIndex + TO_MARKER.length()).trim();
@@ -345,7 +353,11 @@ public class Harold {
                     "Task " + taskNumber + " does not exist. "
                             + "Choose a number from 1 to " + taskCount + ".");
         }
-        return taskNumber - 1;
+
+        int taskIndex = taskNumber - 1;
+        assert taskIndex >= 0 && taskIndex < taskCount
+                : "A validated task number must map to an existing zero-based index";
+        return taskIndex;
     }
 
     /**
