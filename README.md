@@ -34,6 +34,17 @@ command-line interface instead, run:
 ./gradlew runCli
 ```
 
+Events accept either dates or dates with local times:
+
+```text
+event conference /from 2026-09-10 /to 2026-09-11
+event lunch /from 2026-09-10 1200 /to 2026-09-10 1300
+```
+
+Harold warns when timed events overlap. Date-only events are allowed to share a
+date; Harold suggests adding times when it cannot determine whether they clash.
+See the [user guide](docs/README.md) for the complete command behavior.
+
 ## Creating the executable JAR
 
 Run the Shadow task from the project root:
