@@ -196,6 +196,9 @@ public class Harold {
                     "A deadline needs '/by <date or time>'. "
                             + "Try: deadline <description> /by <date or time>");
         }
+        assert byIndex >= 0
+                : "A validated deadline command must contain a /by delimiter";
+
         String description = byIndex < 9 ? "" : command.substring(9, byIndex).trim();
         String byText = command.substring(byIndex + 4).trim();
         requireDescription(description, "deadline");
@@ -224,6 +227,11 @@ public class Harold {
                     "An event needs '/to <end>'. "
                             + "Try: event <description> /from <start> /to <end>");
         }
+        assert fromIndex >= 0
+                : "A validated event command must contain a /from delimiter";
+        assert toIndex > fromIndex
+                : "A validated event command must place /to after /from";
+
         String description = fromIndex < 6 ? "" : command.substring(6, fromIndex).trim();
         String fromText = command.substring(fromIndex + 6, toIndex).trim();
         String toText = command.substring(toIndex + 4).trim();
@@ -344,7 +352,11 @@ public class Harold {
                     "Task " + taskNumber + " does not exist. "
                             + "Choose a number from 1 to " + taskCount + ".");
         }
-        return taskNumber - 1;
+
+        int taskIndex = taskNumber - 1;
+        assert taskIndex >= 0 && taskIndex < taskCount
+                : "A validated task number must map to an existing zero-based index";
+        return taskIndex;
     }
 
     /**
