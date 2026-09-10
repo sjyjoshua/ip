@@ -36,6 +36,10 @@ public class TaskList {
         int acceptedTaskCount = Math.min(initialTasks.size(), MAX_TASK_COUNT);
         tasks = new ArrayList<>(initialTasks.subList(0, acceptedTaskCount));
         discardedTaskCount = initialTasks.size() - acceptedTaskCount;
+        assert tasks.size() <= MAX_TASK_COUNT
+                : "Task list must not exceed its maximum capacity after initialization";
+        assert discardedTaskCount >= 0
+                : "Discarded task count must not be negative";
     }
 
     /**
@@ -50,7 +54,13 @@ public class TaskList {
                     "Your task list is full. Complete some tasks before adding more."
             );
         }
+
+        int previousTaskCount = tasks.size();
         tasks.add(task);
+        assert tasks.size() == previousTaskCount + 1
+                : "Adding one task must increase the task count by one";
+        assert tasks.size() <= MAX_TASK_COUNT
+                : "Adding a task must preserve the capacity limit";
     }
 
     /**
@@ -61,7 +71,11 @@ public class TaskList {
      * @throws IndexOutOfBoundsException If the index does not identify a task.
      */
     public Task delete(int index) {
-        return tasks.remove(index);
+        int previousTaskCount = tasks.size();
+        Task deletedTask = tasks.remove(index);
+        assert tasks.size() == previousTaskCount - 1
+                : "Deleting one task must decrease the task count by one";
+        return deletedTask;
     }
 
     /**
@@ -147,6 +161,8 @@ public class TaskList {
                 }
             }
         }
+        assert bestSimilarity >= 0.0 && bestSimilarity <= 1.0
+                : "Normalized similarity must remain between zero and one";
         return bestSimilarity;
     }
 
