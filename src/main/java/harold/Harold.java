@@ -12,6 +12,7 @@ import harold.task.Deadline;
 import harold.task.Event;
 import harold.task.Task;
 import harold.task.TaskDate;
+import harold.task.TaskDateTime;
 import harold.task.TaskList;
 import harold.task.Todo;
 import harold.ui.Ui;
@@ -242,9 +243,10 @@ public class Harold {
         } else if (toText.isEmpty()) {
             throw new HaroldException("Please enter an end date after /to.");
         }
-        LocalDate from = parseDate(fromText, "/from");
-        LocalDate to = parseDate(toText, "/to");
-        return addTask(new Event(description, from, to));
+        TaskDateTime from = parseEventDateTime(fromText, "/from");
+        TaskDateTime to = parseEventDateTime(toText, "/to");
+        Event event = createEvent(description, from, to);
+        return addEvent(event);
     }
 
     /**
@@ -284,6 +286,36 @@ public class Harold {
     }
 
     /**
+     * Adds an event and reports definite or possible conflicts with its schedule.
+     */
+    private CommandResult addEvent(Event event) throws HaroldException, IOException {
+        List<Integer> clashingIndexes = tasks.findClashingEventIndexes(event);
+        List<Integer> possibleClashIndexes = tasks.findPossibleEventClashIndexes(event);
+        StringBuilder response = new StringBuilder(addTask(event).message());
+
+        if (!clashingIndexes.isEmpty()) {
+            response.append(System.lineSeparator())
+                    .append(System.lineSeparator())
+                    .append(formatIndexedTasks(
+                            "Heads up! This event clashes with:",
+                            clashingIndexes
+                    ));
+        }
+        if (!possibleClashIndexes.isEmpty()) {
+            response.append(System.lineSeparator())
+                    .append(System.lineSeparator())
+                    .append(formatIndexedTasks(
+                            "Heads up! These events share a date, but at least one has no time:",
+                            possibleClashIndexes
+                    ))
+                    .append(System.lineSeparator())
+                    .append("Add times using yyyy-MM-dd HHmm if you want Harold to check "
+                            + "for a precise clash.");
+        }
+        return CommandResult.continueWith(response.toString());
+    }
+
+    /**
      * Formats a heading followed by a numbered task list.
      */
     private static String formatTasks(String heading, TaskList tasks) {
@@ -307,6 +339,20 @@ public class Harold {
                     .append(i + 1)
                     .append('.')
                     .append(tasks.get(i));
+        }
+        return response.toString();
+    }
+
+    /**
+     * Formats tasks using their original one-based positions in Harold's task list.
+     */
+    private String formatIndexedTasks(String heading, List<Integer> indexes) {
+        StringBuilder response = new StringBuilder(heading);
+        for (int index : indexes) {
+            response.append(System.lineSeparator())
+                    .append(index + 1)
+                    .append('.')
+                    .append(tasks.get(index));
         }
         return response.toString();
     }
@@ -410,6 +456,45 @@ public class Harold {
                             + " as yyyy-MM-dd, for example 2019-10-15."
             );
         }
+    }
+
+    /**
+     * Parses an event endpoint in either the date-only or date-and-time input format.
+     */
+    private static TaskDateTime parseEventDateTime(String dateText, String commandMarker)
+            throws HaroldException {
+        try {
+            return TaskDateTime.parseInput(dateText);
+        } catch (DateTimeParseException e) {
+            throw new HaroldException(
+                    "Please enter the date after " + commandMarker
+                            + " as yyyy-MM-dd or yyyy-MM-dd HHmm, for example 2019-10-15 1800."
+            );
+        }
+    }
+
+    /**
+     * Creates an event after reporting precision and range errors in user-facing terms.
+     */
+    private static Event createEvent(
+            String description,
+            TaskDateTime from,
+            TaskDateTime to
+    ) throws HaroldException {
+        if (from.hasTime() != to.hasTime()) {
+            throw new HaroldException(
+                    "Use times for both /from and /to, or omit times from both."
+            );
+        }
+        if (from.hasTime() && !to.toLocalDateTime().isAfter(from.toLocalDateTime())) {
+            throw new HaroldException(
+                    "The event end date and time must be after its start date and time."
+            );
+        }
+        if (!from.hasTime() && to.toLocalDate().isBefore(from.toLocalDate())) {
+            throw new HaroldException("The event end date cannot be before its start date.");
+        }
+        return new Event(description, from, to);
     }
 
     /**

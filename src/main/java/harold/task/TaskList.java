@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import harold.HaroldException;
 
@@ -139,6 +140,45 @@ public class TaskList {
                 .sorted(bySimilarity.reversed())
                 .limit(limit)
                 .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    /**
+     * Returns the indexes of incomplete timed events that clash with a candidate event.
+     *
+     * @param candidate Event being considered for addition.
+     * @return Zero-based indexes of clashing events in task-list order.
+     */
+    public List<Integer> findClashingEventIndexes(Event candidate) {
+        return findEventIndexes(candidate, true);
+    }
+
+    /**
+     * Returns indexes of incomplete events that might clash because at least one lacks times.
+     *
+     * @param candidate Event being considered for addition.
+     * @return Zero-based indexes of possible clashes in task-list order.
+     */
+    public List<Integer> findPossibleEventClashIndexes(Event candidate) {
+        return findEventIndexes(candidate, false);
+    }
+
+    /**
+     * Finds actual or possible event clashes while retaining original task indexes.
+     */
+    private List<Integer> findEventIndexes(Event candidate, boolean isPreciseClash) {
+        return IntStream.range(0, tasks.size())
+                .filter(index -> tasks.get(index) instanceof Event)
+                .filter(index -> !tasks.get(index).isDone())
+                .filter(index -> {
+                    Event existingEvent = (Event) tasks.get(index);
+                    if (isPreciseClash) {
+                        return candidate.clashesWith(existingEvent);
+                    }
+                    boolean lacksPreciseTime = !candidate.hasTime() || !existingEvent.hasTime();
+                    return lacksPreciseTime && candidate.sharesDateWith(existingEvent);
+                })
+                .boxed()
+                .toList();
     }
 
     /**

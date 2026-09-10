@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.DateTimeException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -12,6 +13,7 @@ import harold.task.Deadline;
 import harold.task.Event;
 import harold.task.Task;
 import harold.task.TaskDate;
+import harold.task.TaskDateTime;
 import harold.task.TaskList;
 import harold.task.Todo;
 
@@ -65,7 +67,7 @@ public class Storage {
         for (String line : Files.readAllLines(filePath, StandardCharsets.UTF_8)) {
             try {
                 tasks.add(parseTask(line));
-            } catch (IllegalArgumentException e) {
+            } catch (IllegalArgumentException | DateTimeException e) {
                 skippedLineCount++;
             }
         }
@@ -122,8 +124,8 @@ public class Storage {
                 requireFieldCount(fields, EVENT_FIELD_COUNT);
                 yield new Event(
                         description,
-                        TaskDate.parse(decode(fields[EVENT_START_DATE_INDEX])),
-                        TaskDate.parse(decode(fields[EVENT_END_DATE_INDEX]))
+                        TaskDateTime.parseStored(decode(fields[EVENT_START_DATE_INDEX])),
+                        TaskDateTime.parseStored(decode(fields[EVENT_END_DATE_INDEX]))
                 );
             }
             default -> throw new IllegalArgumentException("Unknown task type");
@@ -167,8 +169,8 @@ public class Storage {
         if (task instanceof Deadline deadline) {
             return commonFields + FIELD_SEPARATOR + encode(deadline.getBy().toString());
         } else if (task instanceof Event event) {
-            return commonFields + FIELD_SEPARATOR + encode(event.getFrom().toString())
-                    + FIELD_SEPARATOR + encode(event.getTo().toString());
+            return commonFields + FIELD_SEPARATOR + encode(event.getFrom().formatForStorage())
+                    + FIELD_SEPARATOR + encode(event.getTo().formatForStorage());
         }
         return commonFields;
     }
