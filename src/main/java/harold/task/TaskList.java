@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 import harold.HaroldException;
 
@@ -96,13 +97,9 @@ public class TaskList {
      * @return Matching tasks in their original order.
      */
     public List<Task> find(String keyword) {
-        List<Task> matchingTasks = new ArrayList<>();
-        for (Task task : tasks) {
-            if (task.getDescription().contains(keyword)) {
-                matchingTasks.add(task);
-            }
-        }
-        return matchingTasks;
+        return tasks.stream()
+                .filter(task -> task.getDescription().contains(keyword))
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     /**
@@ -120,15 +117,14 @@ public class TaskList {
             return List.of();
         }
 
-        List<Task> similarTasks = new ArrayList<>(tasks);
-        similarTasks.removeIf(task -> calculateSimilarity(keyword, task.getDescription())
-                < MINIMUM_SIMILARITY);
         Comparator<Task> bySimilarity = Comparator.comparingDouble(
                 task -> calculateSimilarity(keyword, task.getDescription()));
-        similarTasks.sort(bySimilarity.reversed());
-
-        int resultCount = Math.min(limit, similarTasks.size());
-        return new ArrayList<>(similarTasks.subList(0, resultCount));
+        return tasks.stream()
+                .filter(task -> calculateSimilarity(keyword, task.getDescription())
+                        >= MINIMUM_SIMILARITY)
+                .sorted(bySimilarity.reversed())
+                .limit(limit)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     /**
